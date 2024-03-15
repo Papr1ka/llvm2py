@@ -1,0 +1,8 @@
+certifi==2024.2.2
+charset-normalizer==3.3.2
+graphviz==0.20.1
+idna==3.6
+llvmlite==0.42.0
+requests==2.31.0
+urllib3==2.2.1
+pybind11==2.11.1
