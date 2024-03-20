@@ -1,5 +1,5 @@
 #!/bin/bash
-
+rm "./llvm_python$(python-config --extension-suffix)"
 cmake -B build -G Ninja
 cd build/
 cmake --build .

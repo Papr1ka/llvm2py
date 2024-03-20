@@ -1,5 +1,4 @@
 import llvm_python # Наша C++ библиотека
-from compile_online import get_ir
 
 print(llvm_python.__doc__)
 
@@ -69,15 +68,72 @@ int main() {
 }"""
 
 codes = {
-    "fibonacci": cpp_code1,
-    "factorial": cpp_code2
+    "factorial": cpp_code1,
+    "fibonacci": cpp_code2
 }
 
 print("Компиляция в LLVM IR...")
-function_ir = get_ir(codes['factorial'])
+# function_ir_fib = get_ir(codes['fibonacci'])
+# function_ir_fact = get_ir(codes['factorial'])
+
+with open("ir_test_files/fact.ll", "r") as file:
+    function_ir_fact = file.read()
+
+with open("ir_test_files/fib.ll", "r") as file:
+    function_ir_fib = file.read()
 
 print("Вызов c++ функции...")
-function_names = llvm_python.parseModuleFunctions(function_ir) # Отправляется запрос на godbolt, где код компилируется clang11 в llvm-ir
+module = llvm_python.parse_module(function_ir_fib) # Отправляется запрос на godbolt, где код компилируется clang11 в llvm-ir
+print(module)
+print(module.name)
+# print("test")
+# module.test()
+# print("end test")
+# module.printSummary()
+# print(module)
+# print(dir(module))
+# print(module.__sizeof__())
+# print(module.getName())
+# print(module.getFunctions())
+function = module.get_function("_Z9factoriali")
+print(module.get_functions())
+function_not_exists = module.get_function("main2")
+print(function_not_exists)
+# print(function)
+# print(function.getName())
+print("iteration")
+for i in module.functions:
+    print(i.name, "works!")
 
-print("Ура, список функций получен!")
-print(function_names)
+print(function)
+
+blocks = list(function.blocks)
+print(len(blocks))
+
+for block in function.blocks:
+    print(block)
+
+print("arguments:")
+
+for arg in function.args:
+    print(arg)
+
+
+blocks = list(function.blocks)
+last_block = blocks[-2]
+print("Instructions:")
+instructions = last_block.getInstructions()
+for instr in instructions:
+    print(instr)
+
+instruction = instructions[-2]
+
+print("Instruction:")
+print(instruction)
+print("Operands:")
+print(instruction.getOperand(0))
+print(instruction.getOperand(1))
+print("Return value:")
+print(instruction.getValue())
+
+print("Конец")

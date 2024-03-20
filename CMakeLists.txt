@@ -20,7 +20,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall\
 
 add_subdirectory(pybind11)
 
-pybind11_add_module(llvm_python bind.cpp)
+pybind11_add_module(llvm_python
+        tools.h
+        bindValue.cpp
+        bindInstruction.cpp
+        bindArgument.cpp
+        bindBlock.cpp
+        bindModule.cpp
+        bindFunction.cpp
+        bind.cpp)
 
 target_link_libraries(llvm_python PRIVATE
     LLVMCore
