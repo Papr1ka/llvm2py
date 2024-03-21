@@ -32,5 +32,9 @@ namespace llvm_python {
         func.def_property_readonly("args", [](Function *function) {
             return py::make_iterator(function->arg_begin(), function->arg_end());
         });
+        func.def_property_readonly("attributes", [](Function* function)
+        {
+            function->getAttributes()
+        })
     }
 }

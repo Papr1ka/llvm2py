@@ -22,9 +22,14 @@ namespace llvm_python {
         valueObject.def("__str__", [](ValueWrapper* value)
         {
             std::string container;
+            std::string container2;
             llvm::raw_string_ostream OS(container);
+            llvm::raw_string_ostream OS2(container2);
             value->print(OS);
-            return "<llvm_python.Value named '" + value->getNameOrAsOperand() + "'>\n" + OS.str();
+//            value->getType()->getScalarType()->print(OS2);
+            value->getType()->print(OS2);
+            return "<llvm_python.Value named '" + value->getNameOrAsOperand() +
+            "' type '" + OS2.str() + "'"+ "'>\n" + OS.str();
         });
     }
 }

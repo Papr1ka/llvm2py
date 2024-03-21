@@ -33,5 +33,10 @@ namespace llvm_python {
             }
             return instructions;
         }, py::return_value_policy::reference);
+
+        blockObject.def("function", [](BasicBlock* block)
+        {
+            return block->getParent();
+        }, py::return_value_policy::reference);
     }
 }
