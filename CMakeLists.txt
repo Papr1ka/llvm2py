@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 project(llvm_python)
 
 set(LLVM_INSTALL_DIR "/home/joe/dev/llvm-project/build" CACHE PATH "LLVM installation directory")
+#set(LLVM_INSTALL_DIR "/usr/bin" CACHE PATH "LLVM installation directory")
 list(APPEND CMAKE_PREFIX_PATH "${LLVM_INSTALL_DIR}/lib/cmake/llvm/")
 
 find_package(LLVM REQUIRED CONFIG)
@@ -21,14 +22,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall\
 add_subdirectory(pybind11)
 
 pybind11_add_module(llvm_python
-        tools.h
-        bindValue.cpp
-        bindInstruction.cpp
-        bindArgument.cpp
-        bindBlock.cpp
-        bindModule.cpp
-        bindFunction.cpp
-        bind.cpp)
+        src/module.cpp
+        src/ModuleParser.cpp
+        src/bind.cpp
+)
+
+target_include_directories(llvm_python PRIVATE include)
 
 target_link_libraries(llvm_python PRIVATE
     LLVMCore

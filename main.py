@@ -1,4 +1,4 @@
-import llvm_python # Наша C++ библиотека
+import llvm_python  # Наша C++ библиотека
 
 print(llvm_python.__doc__)
 
@@ -83,57 +83,72 @@ with open("ir_test_files/fib.ll", "r") as file:
     function_ir_fib = file.read()
 
 print("Вызов c++ функции...")
-module = llvm_python.parse_module(function_ir_fib) # Отправляется запрос на godbolt, где код компилируется clang11 в llvm-ir
-print(module)
-print(module.name)
-# print("test")
-# module.test()
-# print("end test")
-# module.printSummary()
-# print(module)
-# print(dir(module))
-# print(module.__sizeof__())
-# print(module.getName())
-# print(module.getFunctions())
-function = module.get_function("_Z9factoriali")
-print(module.get_functions())
-function_not_exists = module.get_function("main2")
-print(function_not_exists)
-# print(function)
-# print(function.getName())
-print("iteration")
-for i in module.functions:
-    print(i.name, "works!")
 
-print(function)
+asm = """
+define i32 @foo(i32 %a, i32 %b) {
+  %c = add i32 1, 2
+  %d = add i32 3, 4
+  %e = add i32 %a, %b
+  %f = add i32 %c, %d
+  %g = add i32 %e, %f
+  %k = add i32 8, 6
+  ret i32 %g
+}
+"""
+q = llvm_python.test(asm)
 
-blocks = list(function.blocks)
-print(len(blocks))
+print(q)
+print(q.__dict__)
 
-for block in function.blocks:
-    print(block)
-
-print("arguments:")
-
-for arg in function.args:
-    print(arg)
+print(dir(llvm_python))
+mod = llvm_python.createModule(function_ir_fib)
+print("OK")
+print(mod)
+print(mod.functions)
+print(mod.dict())
 
 
-blocks = list(function.blocks)
-last_block = blocks[-2]
-print("Instructions:")
-instructions = last_block.getInstructions()
-for instr in instructions:
-    print(instr)
+def visit_type(type, t):
+    print("    " * t, "Type:")
+    print("    " * t + type.name)
+    print("    " * t + str(type.type_id))
 
-instruction = instructions[-2]
 
-print("Instruction:")
-print(instruction)
-print("Operands:")
-print(instruction.getOperand(0))
-print(instruction.getOperand(1))
-print("Return value:")
-print(instruction.getValue())
+def visit_block(block):
+    pass
 
-print("Конец")
+
+def visit_arg(arg, t):
+    print("    " * t, "Arg:")
+    print("    " * t + str(arg.position))
+    print("    " * t + arg.name)
+    print("    " * t + str(arg.parent))
+    visit_type(arg.type, t)
+
+
+def visit_function(function, t):
+    print("    " * t, "Function:")
+    print("    " * t + function.name)
+    visit_type(function.type, t)
+    for arg in function.args:
+        visit_arg(arg, t + 1)
+
+    # for block in function.blocks:
+    #     visit_block(block)
+
+
+def visit_module(module, t=1):
+    print("Module:")
+    print("    " + mod.name)
+    for function in mod.functions:
+        visit_function(function, t + 1)
+
+f = None
+
+# visit_module(mod)
+for function in mod.functions:
+    if "main" in function.name:
+        f = function
+        break
+
+print(f)
