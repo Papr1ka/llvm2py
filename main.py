@@ -1,5 +1,7 @@
 import llvm_python  # Наша C++ библиотека
 
+from compile_online import get_ir
+
 print(llvm_python.__doc__)
 
 """
@@ -67,6 +69,20 @@ int main() {
     return 0;
 }"""
 
+cpp_code3 = """
+int do_operation(int a, float& b, float& c)
+{
+    return a + b * c;
+}
+
+int main()
+{
+    float b = 5.0;
+    float d = 5.0;
+    int i = do_operation(5, b, d);
+    return 0;
+}"""
+
 codes = {
     "factorial": cpp_code1,
     "fibonacci": cpp_code2
@@ -95,13 +111,18 @@ define i32 @foo(i32 %a, i32 %b) {
   ret i32 %g
 }
 """
+
+ir = get_ir(cpp_code3)
+with open("./ir_test_files/test.ll", "w") as file:
+    file.write(ir)
+
 q = llvm_python.test(asm)
 
 print(q)
 print(q.__dict__)
 
 print(dir(llvm_python))
-mod = llvm_python.createModule(function_ir_fib)
+mod = llvm_python.createModule(ir)
 print("OK")
 print(mod)
 print(mod.functions)
@@ -132,6 +153,10 @@ def visit_function(function, t):
     visit_type(function.type, t)
     for arg in function.args:
         visit_arg(arg, t + 1)
+
+    for attribute_set in function.attributes:
+        for attribute in attribute_set:
+            print(attribute)
 
     # for block in function.blocks:
     #     visit_block(block)

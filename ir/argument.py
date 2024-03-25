@@ -1,5 +1,8 @@
+from typing import TypeVar
+
 from .type import Type
-from .function import Function
+
+Function = TypeVar('Function', bound='Function')
 
 
 class Argument:

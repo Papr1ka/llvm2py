@@ -1,5 +1,7 @@
-from typing import Tuple
-from .function import Function
+from typing import Tuple, TypeVar
+
+Function = TypeVar('Function', bound='Function')
+
 
 class Block:
     name: str
