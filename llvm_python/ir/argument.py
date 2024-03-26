@@ -21,13 +21,5 @@ class Argument(Value):
         return f"<Argument position={self.position}, name={self.name}, type={self.type}, parent={self.__function}>"
 
     @property
-    def name(self):
-        return self.__name
-
-    @property
     def position(self):
         return self.__position
-
-    @property
-    def type(self):
-        return self.__type
