@@ -22,6 +22,7 @@ class Function(Value):
         'calling_convention',
         'linkage_type',
         'visibility',
+        'return_type',
         'name',
         'type_'
     )
