@@ -4,6 +4,8 @@
 
 # Установка
 
+0. В системе необходимо иметь установленный cmake
+
 1. Клонирование llvm_python
 
 `git clone git@github.com:Papr1ka/llvm_python.git`
