@@ -1,6 +1,6 @@
 # llvm_python
 
-Инструмент для работы с LLVM_IR в Python
+Инструмент для анализа LLVM_IR в Python
 
 # Установка
 
@@ -14,32 +14,29 @@
 
 `git clone git@github.com:pybind/pybind11.git`
 
+Он необходим для компиляции модуля
+
 3. Настройка LLVM
 
 Необходимо иметь в системе установленную библиотеку LLVM
 
-В файле CMakeLists.txt:
+Сделать это можно через пакетный менеджер дистрибутива
 
-Установить путь к папке с скомпилированной библиотекой LLVM
+Пример:
 
-`set(LLVM_INSTALL_DIR "/home/joe/dev/llvm-project/build" CACHE PATH "LLVM installation directory")`
+`sudo dnf install llvm`
+`sudo dnf install llvm-devel`
 
-4. Скачать систему сборки Ninja
+Также можно собрать вручную
 
-[Ninja](https://ninja-build.org/)
+По умолчанию поиск libllvm.so будет происходить в /usl/bin
 
-[Можно воспользоваться пакетным менеджером](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages)
+Папку с этим файлом можно указать в переменной окружения
 
-5. Скомпилировать
+`LLVM_INSTALL_DIR=../llvm-project/build`
 
-Если всё верно, можно воспользоваться скриптом complile.sh
+Полезным может оказаться страница https://apt.llvm.org/
 
-Если в системе несколько версий Python, pybind11 может найти не ту и название библиотеки может отличаться (в поле версии).
+4. Запустить setup.py
 
-Библиотека будет либо в корне, либо в ./build/llvm_python.{suffix}.so
-
-На данный момент, библиотека скомпилировалась под неподходящую версию предлагается запустить main.py из под этой версии.
-
-6. По желанию скачать requests для компиляции в GodBolt (requirements.txt)
-
-`python -m pip install -r requirements.txt`
+`python setup.py install`
