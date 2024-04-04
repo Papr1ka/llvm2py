@@ -1,4 +1,5 @@
 from typing import Tuple, TypeVar
+from .tools import setup_nodes
 from .value import Value
 
 Block = TypeVar('Block', bound='Block')
@@ -23,15 +24,16 @@ class Instruction(Value):
         self.__op_code_name = op_code_name
         self.__operands = operands
         self._connect(operands)
+        setup_nodes(operands)
 
     @property
-    def op_code(self):
+    def op_code(self) -> int:
         return self.__op_code
 
     @property
-    def op_code_name(self):
+    def op_code_name(self) -> str:
         return self.__op_code_name
 
     @property
-    def operands(self):
+    def operands(self) -> Tuple[Value]:
         return self.__operands

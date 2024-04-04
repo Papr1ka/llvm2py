@@ -1,6 +1,6 @@
 from typing import TypeVar, Tuple
-from .value import Value
 
+from .value import Value
 
 Function = TypeVar('Function', bound='Function')
 

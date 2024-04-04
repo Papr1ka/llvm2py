@@ -9,6 +9,7 @@
 #include <pybind11/stl.h>
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/CFG.h"
 
 namespace py = pybind11;
 using namespace llvm;

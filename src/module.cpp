@@ -68,6 +68,13 @@ namespace llvm_python {
     {
         std::vector<py::object> instructions;
 
+        std::vector<py::object> predBlocks;
+
+        for (BasicBlock* basicBlock : predecessors(&block))
+        {
+            predBlocks.push_back(py::str(getNameOrAsOperand(basicBlock)));
+        }
+
         for (Instruction &instruction: block) {
             py::object instructionObject = handleInstruction(instruction, PT);
             instructions.push_back(instructionObject);
@@ -75,6 +82,7 @@ namespace llvm_python {
 
         py::object blockObject = PT.BlockPyClass(
                 py::tuple(py::cast(instructions)),
+                py::tuple(py::cast(predBlocks)),
                 handleValueToTuple(block, PT)
                 );
         return blockObject;
