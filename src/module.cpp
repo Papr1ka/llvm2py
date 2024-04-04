@@ -1,5 +1,5 @@
 #include "../include/module.h"
-#include "../include/ModuleParser.h"
+#include "../include/parser.h"
 #include "../include/tools.h"
 #include <iostream>
 
@@ -30,7 +30,8 @@ namespace llvm_python {
     {
         py::object valueObject = PT.ValuePyClass(
                 py::str(getNameOrAsOperand(value)),
-                handleType(value->getType(), PT)
+                handleType(value->getType(), PT),
+                py::cast(to_string(value))
                 );
         return valueObject;
     }
@@ -39,7 +40,8 @@ namespace llvm_python {
     {
         return py::make_tuple(
                 py::str(getNameOrAsOperand(value)),
-                handleType(value.getType(), PT)
+                handleType(value.getType(), PT),
+                py::cast(to_string(&value))
         );
     }
 
@@ -143,7 +145,8 @@ namespace llvm_python {
         }
 
         py::object moduleObject = PT.ModulePyClass(
-                py::tuple(py::cast(functions))
+                py::tuple(py::cast(functions)),
+                py::cast(to_string(module))
                 );
         return moduleObject;
     }

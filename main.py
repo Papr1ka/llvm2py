@@ -1,4 +1,3 @@
-import llvm_python
 from llvm_python import ir as IR
 from llvm_python import parse_assembly
 from llvm_python.utils import dump
@@ -7,7 +6,7 @@ from llvm_python.utils import dump
 with open("test_files/factorial.ll") as file:
     ir = file.read()
 
-mod = parse_assembly(ir)
+mod: IR.Module = parse_assembly(ir)
 
 
 with open("dump.txt", "w") as file:

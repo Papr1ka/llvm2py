@@ -1,6 +1,4 @@
-from pprint import pprint, pformat
 from typing import Tuple, TypeVar
-from .type import Type
 from .value import Value
 
 Block = TypeVar('Block', bound='Block')
@@ -19,15 +17,12 @@ class Instruction(Value):
         'type_'
     )
 
-    def __init__(self, op_code: int, op_code_name: str, operands: Tuple, value_args: Tuple):
+    def __init__(self, op_code: int, op_code_name: str, operands: Tuple[Value], value_args: Tuple):
         super().__init__(*value_args)
         self.__op_code = op_code
         self.__op_code_name = op_code_name
         self.__operands = operands
-
-    def __str__(self):
-        return (f"<llvm_python.Instruction opcode={self.__op_code}, opcode_name={self.__op_code_name},"
-                f"operands={self.__operands}, type={self.type_}>")
+        self._connect(operands)
 
     @property
     def op_code(self):

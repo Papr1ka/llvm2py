@@ -1,14 +1,13 @@
-from pprint import pprint, pformat
 from typing import Tuple, TypeVar
-
 from .value import Value
 from .instruction import Instruction
+
 
 Function = TypeVar('Function', bound='Function')
 
 
 class Block(Value):
-    __instructions: Tuple[Instruction]
+    _instructions: Tuple[Instruction]
     _fields = (
         'instructions',
         'name',
@@ -17,11 +16,10 @@ class Block(Value):
 
     def __init__(self, instructions, value_args: Tuple):
         super().__init__(*value_args)
-        self.__instructions = instructions
+        self._instructions = instructions
 
-    def __str__(self):
-        return self.__name
+        self._connect(instructions)
 
     @property
     def instructions(self):
-        return self.__instructions
+        return self._instructions

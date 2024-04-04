@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
-project(llvm_python_parsing)
+project(llvm_python)
 
-#set(LLVM_INSTALL_DIR "/usr/bin" CACHE PATH "LLVM installation directory")
 list(APPEND CMAKE_PREFIX_PATH "${LLVM_INSTALL_DIR}/lib/cmake/llvm/")
 
 find_package(LLVM REQUIRED CONFIG)
@@ -18,17 +17,29 @@ set(CMAKE_CXX_STANDARD 17 CACHE STRING "")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall\
     -fdiagnostics-color=always")
 
-add_subdirectory(pybind11)
+include(GNUInstallDirs)
+include(FetchContent)
 
-pybind11_add_module(llvm_python_parsing
+FetchContent_Declare(
+        pybind11
+        URL https://github.com/pybind/pybind11/archive/refs/tags/v2.10.4.tar.gz
+        URL_HASH SHA256=832e2f309c57da9c1e6d4542dedd34b24e4192ecb4d62f6f4866a737454c9970
+)
+FetchContent_MakeAvailable(pybind11)
+
+set(python_module_name _llvm_python)
+
+pybind11_add_module(${python_module_name}
         src/module.cpp
         src/parser.cpp
         src/bind.cpp
 )
 
-target_include_directories(llvm_python_parsing PRIVATE include)
+target_include_directories(${python_module_name} PRIVATE include)
 
-target_link_libraries(llvm_python_parsing PRIVATE
+target_link_libraries(${python_module_name} PRIVATE
     LLVMCore
     LLVMIRReader
     LLVMSupport)
+
+install(TARGETS ${python_module_name} DESTINATION .)

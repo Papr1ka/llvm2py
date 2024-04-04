@@ -1,4 +1,3 @@
-from pprint import pprint, pformat
 from typing import Tuple
 from .block import Block
 from .type import Type
@@ -7,13 +6,13 @@ from .value import Value
 
 
 class Function(Value):
-    __args: Tuple[Argument]
-    __attributes: Tuple[Tuple[str]]
-    __blocks: Tuple[Block]
-    __calling_convention: int
-    __linkage_type: int
-    __return_type: Type
-    __visibility: int
+    _args: Tuple[Argument]
+    _attributes: Tuple[Tuple[str]]
+    _blocks: Tuple[Block]
+    _calling_convention: int
+    _linkage_type: int
+    _return_type: Type
+    _visibility: int
 
     _fields = (
         'args',
@@ -29,16 +28,16 @@ class Function(Value):
 
     def __init__(self, args, blocks, attributes, return_type, visibility, linkage_type, calling_convention, value_args: Tuple):
         super().__init__(*value_args)
-        self.__args = args
-        self.__blocks = blocks
-        self.__attributes = attributes
-        self.__return_type = return_type
-        self.__visibility = visibility
-        self.__linkage_type = linkage_type
-        self.__calling_convention = calling_convention
+        self._args = args
+        self._blocks = blocks
+        self._attributes = attributes
+        self._return_type = return_type
+        self._visibility = visibility
+        self._linkage_type = linkage_type
+        self._calling_convention = calling_convention
 
-    def __str__(self):
-        return f"<Function name={self.name}, return_type={self.__return_type}, args={self.__args}, attributes={self.__attributes}, blocks=..."
+        self._connect(args)
+        self._connect(blocks)
 
     def get_function_attributes(self):
         return self.attributes[0]
@@ -57,28 +56,28 @@ class Function(Value):
 
     @property
     def args(self):
-        return self.__args
+        return self._args
 
     @property
     def attributes(self):
-        return self.__attributes
+        return self._attributes
 
     @property
     def blocks(self):
-        return self.__blocks
+        return self._blocks
 
     @property
     def return_type(self):
-        return self.__return_type
+        return self._return_type
 
     @property
     def visibility(self):
-        return self.__visibility
+        return self._visibility
 
     @property
     def linkage_type(self):
-        return self.__linkage_type
+        return self._linkage_type
 
     @property
     def calling_convention(self):
-        return self.__calling_convention
+        return self._calling_convention

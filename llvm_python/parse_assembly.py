@@ -1,1 +1,0 @@
-from llvm_python_parsing import parse_assembly
