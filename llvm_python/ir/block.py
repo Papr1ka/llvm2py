@@ -1,4 +1,4 @@
-from typing import Tuple, TypeVar, List, Self
+from typing import Tuple, TypeVar, List
 
 from .tools import setup_nodes
 from .value import Value
@@ -36,5 +36,5 @@ class Block(Value):
     def pred_blocks(self):
         return self._pred_blocks
 
-    def _setup_pred_blocks(self, blocks: List[Self]):
+    def _setup_pred_blocks(self, blocks: List):
         self._pred_blocks = blocks

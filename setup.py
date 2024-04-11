@@ -6,18 +6,7 @@ from pathlib import Path
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
-
-# Convert distutils Windows platform specifiers to CMake -A arguments
-
-# link_args = ['-static-libgcc',
-#              '-static-libstdc++',
-#              '-Wl,-Bstatic,--whole-archive',
-#              '-lwinpthread',
-#              '-Wl,--no-whole-archive']
-
-# A CMakeExtension needs a sourcedir instead of a file list.
-# The name must be the _single_ output extension from the CMake build.
-# If you need multiple extensions, see scikit-build.
+import platform
 
 sources = [
     "src/bind.cpp",
@@ -52,16 +41,21 @@ class CMakeBuild(build_ext):
 
         # CMake lets you override the generator - we need to check this.
         # Can be set with Conda-Build, for example.
-        cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
+        cmake_generator = os.environ.get("CMAKE_GENERATOR", "Ninja")
 
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
         # EXAMPLE_VERSION_INFO shows you how to pass a value into the C++ code
         # from Python.
+        p = platform.system()
+        
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
+        if p == "Linux":
+            cmake_args.append("-DLLVM_DIR=/usr/lib/llvm-18/cmake")
+        
         build_args = []
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
@@ -139,17 +133,19 @@ class CMakeBuild(build_ext):
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 
+with open("./README.md", encoding="utf-8") as file:
+    long_description=file.read()
+
 setup(
     name="llvm_python",
     version="0.0.1",
     author="Papr1ka",
     author_email="kirillpavlov4214@gmail.com",
     description="A tool for analyzing LLVM IR in Python",
-    long_description="A tool for analyzing LLVM IR in Python",
+    long_description=long_description,
     packages=['llvm_python', 'llvm_python/ir'],
-    ext_modules=[CMakeExtension("llvm_python/_llvm_python")],
+    ext_modules=[CMakeExtension("llvm_python._llvm_python")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
-    extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.7",
 )

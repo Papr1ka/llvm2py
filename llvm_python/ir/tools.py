@@ -1,4 +1,3 @@
-from typing import Self
 from weakref import proxy
 
 
@@ -46,11 +45,11 @@ class LinkedListMixin:
         self._next = next_node
 
     @property
-    def next(self) -> Self:
+    def next(self):
         return self._next
 
     @property
-    def prev(self) -> Self:
+    def prev(self):
         return self._prev
 
 

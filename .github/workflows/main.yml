@@ -1,0 +1,83 @@
+name: build_wheel
+on:
+  push:
+    branches:
+      - testci
+jobs:
+  build_wheels_windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          platform-check-severity: warn
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-llvm
+            mingw-w64-x86_64-cmake
+      - name: try to update PATH
+        run: |
+          echo "$(cygpath -w /mingw64/bin)"
+          echo "$(cygpath -w /mingw64/bin)" >> $GITHUB_PATH
+          echo "$GITHUB_WORKSPACE/msys64/mingw64/bin" >> $GITHUB_PATH
+          echo "$HOME/msys64/mingw64/bin" >> $GITHUB_PATH
+          echo "{path}" >> $GITHUB_PATH
+          cd "$(cygpath -w /mingw64/bin)"
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.17.0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-windows-latest-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+
+  build_wheels_linux:
+    name: Build wheels on linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.17.0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-linux-latest-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  upload_testpypi:
+    needs: [build_wheels_windows, build_wheels_linux, build_sdist]
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+        
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true

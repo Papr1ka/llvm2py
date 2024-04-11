@@ -1,3 +1,23 @@
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+skip = ["*-win32", "*-manylinux_i686", "pp*", "*-musllinux_*"]
+
+test-command = "python {package}/tests/test_lib.py"
+
+manylinux-x86_64-image = "quay.io/pypa/manylinux_2_28_x86_64:latest"
+
+[tool.cibuildwheel.linux]
+before-all = [
+    "dnf upgrade -y",
+    "dnf install cmake -y",
+    "dnf install ninja-build -y",
+    "dnf install clang -y",
+    "export CC=/usr/bin/clang",
+    "export CXX=/usr/bin/clang++",
+    "dnf install llvm -y",
+    "dnf install llvm-devel -y",
+    "dnf install libffi-devel -y",
+]

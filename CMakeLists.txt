@@ -9,8 +9,12 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 list(APPEND CMAKE_PREFIX_PATH "${LLVM_INSTALL_DIR}/lib/cmake/llvm/")
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 
+if(UNIX)
+    # Custom path to Terminfo in manylinux28 container
+    find_library(Terminfo_LIBRARIES libtinfo.so.6 PATHS /usr/lib64/)
+endif(UNIX)
+
 find_package(LLVM REQUIRED CONFIG)
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
@@ -21,7 +25,11 @@ add_definitions(${LLVM_DEFINITIONS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall\
     -fdiagnostics-color=always")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+
+if (WIN32)
+    message(STATUS "UNIX SYSTEM DETECTED")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+endif (WIN32)
 
 include(GNUInstallDirs)
 include(FetchContent)
