@@ -29,8 +29,8 @@ class TypeID(Enum):
 
 
 class Type:
-    __name: str
-    __type_id: TypeID
+    name: str
+    type_id: TypeID
 
     _fields = (
         'name',
@@ -38,16 +38,8 @@ class Type:
     )
 
     def setup(self, name: str, type_id: int):
-        self.__name = name
-        self.__type_id = TypeID(type_id)
-
-    @property
-    def name(self) -> str:
-        return self.__name
-
-    @property
-    def type_id(self) -> TypeID:
-        return self.__type_id
+        self.name = name
+        self.type_id = TypeID(type_id)
 
     def __repr__(self):
         return f"<Type name={self.name}, type_id={self.type_id}>"

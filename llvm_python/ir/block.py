@@ -8,7 +8,7 @@ Function = TypeVar('Function', bound='Function')
 
 
 class Block(Value):
-    _instructions: Tuple[Instruction]
+    instructions: Tuple[Instruction]
     _fields = (
         'instructions',
         'name',
@@ -16,25 +16,14 @@ class Block(Value):
         'type_'
     )
 
-    def __init__(self, instructions, pred_blocks: Tuple[str], value_args: Tuple):
+    def __init__(self, instructions, pred_blocks_names: Tuple[str], value_args: Tuple):
         super().__init__(*value_args)
-        self._instructions = instructions
-        self._pred_blocks_names = pred_blocks
+        self.instructions = instructions
+        self.pred_blocks_names = pred_blocks_names
+        self.pred_blocks = None
+        
         self._connect(instructions)
         setup_nodes(instructions)
-        self._pred_blocks = None
-
-    @property
-    def instructions(self):
-        return self._instructions
-
-    @property
-    def pred_blocks_names(self):
-        return self._pred_blocks_names
-
-    @property
-    def pred_blocks(self):
-        return self._pred_blocks
 
     def _setup_pred_blocks(self, blocks: List):
-        self._pred_blocks = blocks
+        self.pred_blocks = blocks

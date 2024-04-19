@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, Iterator
+from typing import Tuple, Dict, Union
 
 from .block import Block
 from .instruction import Instruction
@@ -7,8 +7,8 @@ from .tools import ParentMixin, CodeMixin, setup_nodes
 
 
 class Module(ParentMixin, CodeMixin):
-    _functions: Dict[str, Function]
-    _functions_tuple: Tuple[Function]
+    functions: Tuple[Function]
+    functions_map: Dict[str, Function]
     _fields = (
         'functions',
         'name',
@@ -17,33 +17,11 @@ class Module(ParentMixin, CodeMixin):
 
     def __init__(self, functions: Tuple[Function], code):
         super().__init__(code)
-        self._functions = {function.name: function for function in functions}
-        self._functions_tuple = functions
+        self.functions_map = {function.name: function for function in functions}
+        self.functions = functions
         self._connect(functions)
 
         setup_nodes(functions)
-
-    def get_function(self, name: str) -> Function:
-        return self._functions.get(name)
-
-    @property
-    def functions(self) -> Tuple[Function]:
-        return self._functions_tuple
-
-    def block_iterator(self) -> Iterator[Block]:
-        for function in self._functions_tuple:
-            for block in function.blocks:
-                yield block
-
-    @property
-    def blocks(self) -> Tuple[Block, ...]:
-        return tuple(self.block_iterator())
-
-    def instruction_iterator(self) -> Iterator[Instruction]:
-        for block in self.block_iterator():
-            for instruction in block.instructions:
-                yield instruction
-
-    @property
-    def instructions(self) -> Tuple[Instruction, ...]:
-        return tuple(self.instruction_iterator())
+    
+    def get_function(self, name: str) -> Union[Function, None]:
+        return self.functions_map.get(name)
