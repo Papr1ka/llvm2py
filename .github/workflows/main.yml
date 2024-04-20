@@ -3,6 +3,9 @@ on:
   push:
     tags:
       - v[0-9]+.*
+  workflow_dispatch:
+
+
 jobs:
   build_wheels_windows:
     runs-on: windows-latest
@@ -65,7 +68,7 @@ jobs:
           name: cibw-wheels-linux-latest-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
-  upload_testpypi:
+  upload_pypi:
     needs: [build_wheels_windows, build_wheels_linux, build_sdist]
     runs-on: ubuntu-latest
     environment: pypi
@@ -85,6 +88,8 @@ jobs:
     needs: [build_wheels_windows, build_wheels_linux, build_sdist]
     name: Create Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -98,4 +103,3 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: dist/*
-          
