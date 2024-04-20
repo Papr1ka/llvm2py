@@ -1,13 +1,12 @@
-from typing import Tuple, TypeVar, List
+from typing import Tuple, List
 
+from .instruction import Instruction
 from .tools import setup_nodes
 from .value import Value
-from .instruction import Instruction
-
-Function = TypeVar('Function', bound='Function')
 
 
 class Block(Value):
+    # Tuple of instruction objects that the block contains
     instructions: Tuple[Instruction]
     _fields = (
         'instructions',

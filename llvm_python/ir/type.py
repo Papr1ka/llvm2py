@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Dict, Any
 
 
 class TypeID(Enum):
@@ -32,14 +33,21 @@ class Type:
     name: str
     type_id: TypeID
 
+    # Not None if Type is type_id is ArrayTyID
+    num_elements: int
+    subtype: "Type"
+
     _fields = (
         'name',
         'type_id',
+        'array'
     )
 
-    def setup(self, name: str, type_id: int):
+    def setup(self, name: str, type_id: int, data: Dict[str, Any]):
         self.name = name
         self.type_id = TypeID(type_id)
+        self.num_elements = data.get("num_elements")
+        self.subtype = data.get("subtype")
 
     def __repr__(self):
         return f"<Type name={self.name}, type_id={self.type_id}>"

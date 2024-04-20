@@ -1,12 +1,12 @@
-from llvm_python import ir as IR
+from llvm_python import ir
 from llvm_python import parse_assembly
 from graphviz import Digraph
 
 
-with open("./test_files/factorial.ll") as file:
-    ir = file.read()
+with open("../test_files/factorial.ll") as file:
+    ll = file.read()
 
-mod: IR.Module = parse_assembly(ir)
+mod: ir.Module = parse_assembly(ll)
 
 g = Digraph()
 
@@ -16,7 +16,7 @@ node_attributes = {
 }
 
 
-def graph_node(node: IR.Value):
+def graph_node(node: ir.Value):
     text = str(node).replace("\n", "\l")
     return node.name[1:], node.name + ":" + text
 

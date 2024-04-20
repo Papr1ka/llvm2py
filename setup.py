@@ -18,6 +18,8 @@ sources = [
     "CMakeLists.txt"
 ]
 
+LLVM_DIR = "/usr/lib/llvm-18/cmake" # Path to cmake folder of llvm library
+
 class CMakeExtension(Extension):
     def __init__(self, name: str, sourcedir: str = "") -> None:
         super().__init__(name, sources=sources)
@@ -53,8 +55,8 @@ class CMakeBuild(build_ext):
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
-        if p == "Linux":
-            cmake_args.append("-DLLVM_DIR=/usr/lib/llvm-18/cmake")
+        if p == "Linux" and LLVM_DIR is not None:
+            cmake_args.append(f"-DLLVM_DIR={LLVM_DIR}")
         
         build_args = []
         # Adding CMake arguments set as environment variable
@@ -138,14 +140,37 @@ with open("./README.md", encoding="utf-8") as file:
 
 setup(
     name="llvm_python",
-    version="0.0.1",
+    version="0.0.1b1",
     author="Papr1ka",
+    url="https://github.com/Papr1ka/llvm_python",
     author_email="kirillpavlov4214@gmail.com",
-    description="A tool for analyzing LLVM IR in Python",
+    description="A library for analyzing LLVM IR in Python",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     packages=['llvm_python', 'llvm_python/ir'],
     ext_modules=[CMakeExtension("llvm_python._llvm_python")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     python_requires=">=3.7",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development :: Libraries",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+    ],
+    keywords=["llvm", "analysis", "ir", "intermediate", "presentation", "representation", "compiler", "parser"],
+    license="MIT"
 )

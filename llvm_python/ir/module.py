@@ -1,13 +1,13 @@
-from typing import Tuple, Dict, Union
+from typing import Tuple, Dict
 
-from .block import Block
-from .instruction import Instruction
 from .function import Function
-from .tools import ParentMixin, CodeMixin, setup_nodes
+from .tools import ParentMixin, CodeMixin, setup_nodes, _queue
 
 
 class Module(ParentMixin, CodeMixin):
+    # Tuple of function objects that the module contains
     functions: Tuple[Function]
+    # A dictionary that maps function names to their objects
     functions_map: Dict[str, Function]
     _fields = (
         'functions',
@@ -22,6 +22,14 @@ class Module(ParentMixin, CodeMixin):
         self._connect(functions)
 
         setup_nodes(functions)
+
+        # post-initialization routines
+        while _queue:
+            f = _queue.popleft()
+            f(self)
     
-    def get_function(self, name: str) -> Union[Function, None]:
+    def get_function(self, name: str):
+        """
+        Returns the function object by name
+        """
         return self.functions_map.get(name)

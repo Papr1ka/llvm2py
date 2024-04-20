@@ -19,9 +19,19 @@ namespace llvm_python {
     py::object handleType(Type *type, const PythonTypes &PT)
     {
         py::object typeObject = PT.TypePyClass();
+        py::dict data;
+        if (type->isArrayTy())
+        {
+            data["num_elements"] = py::int_(type->getArrayNumElements());
+            for (auto& i : type->subtypes())
+            {
+                data["subtype"] = handleType(i, PT);
+            }
+        }
         typeObject.attr("setup")(
                 py::cast(to_string<Type>(type)),
-                py::cast((int) type->getTypeID())
+                py::cast((int) type->getTypeID()),
+                data
         );
         return typeObject;
     }
@@ -45,9 +55,34 @@ namespace llvm_python {
         );
     }
 
+    py::object handleInstructionSpecific(Instruction& instruction, const PythonTypes &PT)
+    {
+        py::dict data;
+        if (auto * instr = dyn_cast<AllocaInst>(&instruction))
+        {
+            data["AllocatedType"] = handleType(instr->getAllocatedType(), PT);
+            data["Align"] = py::int_(instr->getAlign().value());
+        }
+        else if (auto * instr = dyn_cast<GetElementPtrInst>(&instruction))
+        {
+            data["SourceElementType"] = handleType(instr->getSourceElementType(), PT);
+            data["ResultElementType"] = handleType(instr->getResultElementType(), PT);
+            std::vector<py::object> indices;
+
+            for (auto &i : instr->indices())
+            {
+                indices.push_back(handleValueToTuple(*i.get(), PT));
+            }
+            data["Indices"] = py::tuple(py::cast(indices));
+        }
+        return data;
+    }
+
     py::object handleInstruction(Instruction &instruction, const PythonTypes &PT)
     {
         std::vector<py::object> operands;
+
+        py::object data = handleInstructionSpecific(instruction, PT);
 
         for (Use& operand : instruction.operands())
         {
@@ -59,6 +94,7 @@ namespace llvm_python {
                 py::cast(instruction.getOpcode()),
                 py::str(instruction.getOpcodeName()),
                 py::tuple(py::cast(operands)),
+                data,
                 handleValueToTuple(instruction, PT)
                 );
         return instructionObject;

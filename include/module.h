@@ -10,6 +10,8 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/CFG.h"
+#include "llvm/IR/Instructions.h"
+
 
 namespace py = pybind11;
 using namespace llvm;

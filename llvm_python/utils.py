@@ -1,18 +1,18 @@
-from llvm_python import ir as IR
+from llvm_python import ir
 
 
-def dump(node, annotate_fields=True, *, indent=None):
+def dump(node, annotate_fields=True, *, indent=None) -> str:
     """
     Return a formatted dump of the IR object.
     """
     ir_types = (
-        IR.Module,
-        IR.Function,
-        IR.Value,
-        IR.Type,
-        IR.Block,
-        IR.Argument,
-        IR.Instruction
+        ir.Module,
+        ir.Function,
+        ir.Value,
+        ir.Type,
+        ir.Block,
+        ir.Argument,
+        ir.Instruction
     )
 
     def _format(node, level=0):
@@ -57,7 +57,7 @@ def dump(node, annotate_fields=True, *, indent=None):
         return repr(node), True
 
     if node.__class__ not in ir_types:
-        raise TypeError('expected llvm_python.ir object, got %r' %
+        raise TypeError('expected llvm_python.ir.* object, got %r' %
                         node.__class__.__name__)
     if indent is not None and not isinstance(indent, str):
         indent = ' ' * indent
