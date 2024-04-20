@@ -1,5 +1,5 @@
 [![PyPI](https://img.shields.io/pypi/v/llvm_python.svg)](https://pypi.python.org/pypi/llvm_python)
-[![Actions status](https://github.com/Papr1ka/llvm_python/actions/workflows/build_wheels.yml/badge.svg?branch=main)](https://github.com/Papr1ka/llvm_python/actions/workflows/build_wheels.yml)
+[![Actions status](https://github.com/Papr1ka/llvm_python/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/Papr1ka/llvm_python/actions/workflows/main.yml)
 [![release](https://img.shields.io/github/v/release/Papr1ka/llvm_python.svg?label=release)](https://github.com/Papr1ka/llvm_python/releases)
 
 
@@ -13,6 +13,9 @@ To solve such a problem, it is necessary to have the code in a slightly more con
 You might come up with the idea of building your own compiler, which is quite difficult, or you might decide to use intermediate representations of GCC or LLVM, but in that case you have to deal with the C/C++ API, which is something you don't want when you have elegant solutions in Python.
 
 **llvm_python** allows you to analyze C/C++ programs in the LLVM IR representation in Python.
+
+> The library is in beta, so in case of problems, feel free to create issues.
+
 
 # Usage example
 
@@ -131,10 +134,3 @@ Example:
 in the directory with setup.py:
 
 `python -m pip install .`
-
-
-# Contact
-
-For any questions related to the library, you can contact us by mail
-
-``
