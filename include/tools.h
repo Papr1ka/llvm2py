@@ -2,15 +2,15 @@
 // Created by joe on 26.03.24.
 //
 
-#ifndef LLPY_TOOLS_H
-#define LLPY_TOOLS_H
+#ifndef LLVM2PY_TOOLS_H
+#define LLVM2PY_TOOLS_H
 
 #include "llvm/Support/raw_ostream.h"
 #include <string>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_os_ostream.h>
 
-namespace llpy
+namespace llvm2py
 {
     std::string to_string(llvm::Module* object)
     {
@@ -52,4 +52,4 @@ namespace llpy
     }
 }
 
-#endif //LLPY_TOOLS_H
+#endif //LLVM2PY_TOOLS_H

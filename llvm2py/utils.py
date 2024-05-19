@@ -1,4 +1,4 @@
-from llpy import ir
+from llvm2py import ir
 
 
 def dump(node, annotate_fields=True, *, indent=None) -> str:
@@ -57,7 +57,7 @@ def dump(node, annotate_fields=True, *, indent=None) -> str:
         return repr(node), True
 
     if node.__class__ not in ir_types:
-        raise TypeError('expected llpy.ir.* object, got %r' %
+        raise TypeError('expected llvm2py.ir.* object, got %r' %
                         node.__class__.__name__)
     if indent is not None and not isinstance(indent, str):
         indent = ' ' * indent

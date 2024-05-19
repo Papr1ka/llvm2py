@@ -1,9 +1,9 @@
-[![PyPI](https://img.shields.io/pypi/v/llpy.svg)](https://pypi.python.org/pypi/llpy)
-[![Actions status](https://github.com/Papr1ka/llpy/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/Papr1ka/llpy/actions/workflows/main.yml)
-[![release](https://img.shields.io/github/v/release/Papr1ka/llpy.svg?label=release)](https://github.com/Papr1ka/llpy/releases)
+[![PyPI](https://img.shields.io/pypi/v/llvm2py.svg)](https://pypi.python.org/pypi/llvm2py)
+[![Actions status](https://github.com/Papr1ka/llvm2py/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/Papr1ka/llvm2py/actions/workflows/main.yml)
+[![release](https://img.shields.io/github/v/release/Papr1ka/llvm2py.svg?label=release)](https://github.com/Papr1ka/llvm2py/releases)
 
 
-# llpy
+# llvm2py
 
 A fairly large proportion of programs are written in C/C++.
 
@@ -12,7 +12,7 @@ To solve such a problem, it is necessary to have the code in a slightly more con
 
 You might come up with the idea of building your own compiler, which is quite difficult, or you might decide to use intermediate representations of GCC or LLVM, but in that case you have to deal with the C/C++ API, which is something you don't want when you have elegant solutions in Python.
 
-**llpy** allows you to analyze C/C++ programs in the LLVM IR representation in Python.
+**llvm2py** allows you to analyze C/C++ programs in the LLVM IR representation in Python.
 
 > The library is in beta, so in case of problems, feel free to create issues.
 
@@ -33,8 +33,8 @@ int factorial_req(int n)
 ```
 
 ```python
-from llpy import ir
-from llpy import parse_assembly
+from llvm2py import ir
+from llvm2py import parse_assembly
 from graphviz import Digraph
 
 
@@ -80,7 +80,7 @@ g.save("cfg.dot")
 
 ## Preferred way
 
-`pip install llpy`
+`pip install llvm2py`
 
 Supported versions
 
@@ -102,11 +102,11 @@ On Windows 64bit and manylinux x86_64 platforms.
 
 * Preferred build system **Ninja**
 
-2. Cloning llpy
+2. Cloning llvm2py
 
-`git clone git@github.com:Papr1ka/llpy.git`
+`git clone git@github.com:Papr1ka/llvm2py.git`
 
-`cd llpy`
+`cd llvm2py`
 
 3. LLVM setup
 

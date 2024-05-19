@@ -2,7 +2,7 @@ from typing import Callable
 
 from . import ir
 from . import utils
-from ._llpy import parse_assembly
+from ._llvm2py import parse_assembly
 
 
 parse_assembly: Callable[

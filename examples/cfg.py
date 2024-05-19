@@ -1,5 +1,5 @@
-from llpy import ir
-from llpy import parse_assembly
+from llvm2py import ir
+from llvm2py import parse_assembly
 from graphviz import Digraph
 
 

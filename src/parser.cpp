@@ -1,6 +1,6 @@
 #include "../include/parser.h"
 
-namespace llpy
+namespace llvm2py
 {
 
     static LLVMContext ctx;

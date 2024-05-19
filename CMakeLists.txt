@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 
-project(llpy LANGUAGES C CXX)
+project(llvm2py LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -41,7 +41,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pybind11)
 
-set(python_module_name _llpy)
+set(python_module_name _llvm2py)
 
 pybind11_add_module(${python_module_name}
         src/module.cpp

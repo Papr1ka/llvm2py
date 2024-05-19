@@ -2,8 +2,8 @@
 // Created by joe on 24.03.24.
 //
 
-#ifndef LLPY_MODULE_H
-#define LLPY_MODULE_H
+#ifndef LLVM2PY_MODULE_H
+#define LLVM2PY_MODULE_H
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -16,8 +16,8 @@
 namespace py = pybind11;
 using namespace llvm;
 
-namespace llpy {
+namespace llvm2py {
     py::object createModule(const std::string& IR);
 }
 
-#endif //LLPY_MODULE_H
+#endif //LLVM2PY_MODULE_H

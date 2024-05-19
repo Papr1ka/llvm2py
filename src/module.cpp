@@ -3,7 +3,7 @@
 #include "../include/tools.h"
 #include <iostream>
 
-namespace llpy {
+namespace llvm2py {
 
     struct PythonTypes {
         py::object IRPyModule;
@@ -195,7 +195,7 @@ namespace llpy {
 
     py::object createModule(const std::string &IR)
     {
-        py::object IRPyModule = py::module_::import("llpy.ir");
+        py::object IRPyModule = py::module_::import("llvm2py.ir");
         PythonTypes PT = PythonTypes{
                 IRPyModule,
                 IRPyModule.attr("Module"),

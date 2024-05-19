@@ -139,16 +139,16 @@ with open("./README.md", encoding="utf-8") as file:
     long_description=file.read()
 
 setup(
-    name="llpy",
+    name="llvm2py",
     version="0.0.1b2",
     author="Papr1ka",
-    url="https://github.com/Papr1ka/llpy",
+    url="https://github.com/Papr1ka/llvm2py",
     author_email="kirillpavlov4214@gmail.com",
     description="A library for analyzing LLVM IR in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=['llpy', 'llpy/ir'],
-    ext_modules=[CMakeExtension("llpy._llpy")],
+    packages=['llvm2py', 'llvm2py/ir'],
+    ext_modules=[CMakeExtension("llvm2py._llvm2py")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     python_requires=">=3.7",
