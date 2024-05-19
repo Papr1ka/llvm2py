@@ -1,4 +1,3 @@
-from typing import Any
 from weakref import proxy
 from collections import deque
 

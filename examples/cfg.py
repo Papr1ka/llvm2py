@@ -1,5 +1,5 @@
-from llvm_python import ir
-from llvm_python import parse_assembly
+from llpy import ir
+from llpy import parse_assembly
 from graphviz import Digraph
 
 
@@ -17,7 +17,7 @@ node_attributes = {
 
 
 def graph_node(node: ir.Value):
-    text = str(node).replace("\n", "\l")
+    text = str(node).replace('\n', '\\n\n')
     return node.name[1:], node.name + ":" + text
 
 

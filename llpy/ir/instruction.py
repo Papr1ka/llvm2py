@@ -97,7 +97,7 @@ class Instruction(Value):
     # Instruction opcode name
     op_code_name: str
     # Tuple of operand instruction operands
-    operands: Tuple[Value]
+    operands: Tuple[Value, ...]
     """
     Additional data, different for each instruction
     

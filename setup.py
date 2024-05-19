@@ -3,10 +3,10 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-
+import platform
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
-import platform
+
 
 sources = [
     "src/bind.cpp",
@@ -139,16 +139,16 @@ with open("./README.md", encoding="utf-8") as file:
     long_description=file.read()
 
 setup(
-    name="llvm_python",
-    version="0.0.1b1",
+    name="llpy",
+    version="0.0.1b2",
     author="Papr1ka",
-    url="https://github.com/Papr1ka/llvm_python",
+    url="https://github.com/Papr1ka/llpy",
     author_email="kirillpavlov4214@gmail.com",
     description="A library for analyzing LLVM IR in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=['llvm_python', 'llvm_python/ir'],
-    ext_modules=[CMakeExtension("llvm_python._llvm_python")],
+    packages=['llpy', 'llpy/ir'],
+    ext_modules=[CMakeExtension("llpy._llpy")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     python_requires=">=3.7",

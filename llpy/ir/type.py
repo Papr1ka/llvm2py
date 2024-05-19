@@ -43,7 +43,7 @@ class Type:
         'array'
     )
 
-    def setup(self, name: str, type_id: int, data: Dict[str, Any]):
+    def __init__(self, name: str, type_id: int, data: Dict[str, Any]):
         self.name = name
         self.type_id = TypeID(type_id)
         self.num_elements = data.get("num_elements")

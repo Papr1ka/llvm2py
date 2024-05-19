@@ -4,10 +4,10 @@
 
 namespace py = pybind11;
 
-namespace llvm_python {
+namespace llpy {
 
-    PYBIND11_MODULE(_llvm_python, m) {
+    PYBIND11_MODULE(_llpy, m) {
         m.doc() = "Python & LLVM IR parser, an early beginning...";
-        m.def("parse_assembly", &llvm_python::createModule);
+        m.def("parse_assembly", &llpy::createModule);
     }
 }

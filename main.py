@@ -1,6 +1,6 @@
-from llvm_python import ir
-from llvm_python import parse_assembly
-from llvm_python.utils import dump
+from llpy import ir
+from llpy import parse_assembly
+from llpy.utils import dump
 
 
 with open("test_files/factorial.ll") as file:

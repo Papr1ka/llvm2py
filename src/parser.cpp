@@ -1,10 +1,10 @@
 #include "../include/parser.h"
 
-namespace llvm_python
+namespace llpy
 {
 
     static LLVMContext ctx;
-    Module* parse_module(const std::string& irPresentation)
+    std::unique_ptr<Module> parse_module(const std::string& irPresentation)
     {
         SMDiagnostic Err;
         StringRef moduleIR = irPresentation;
@@ -17,7 +17,6 @@ namespace llvm_python
             Err.print(irPresentation.c_str(), OS);
             throw std::invalid_argument(OS.str());
         }
-        Module* ptr = M.release();
-        return ptr;
+        return M;
     }
 }

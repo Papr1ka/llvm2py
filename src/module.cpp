@@ -3,7 +3,7 @@
 #include "../include/tools.h"
 #include <iostream>
 
-namespace llvm_python {
+namespace llpy {
 
     struct PythonTypes {
         py::object IRPyModule;
@@ -18,7 +18,6 @@ namespace llvm_python {
 
     py::object handleType(Type *type, const PythonTypes &PT)
     {
-        py::object typeObject = PT.TypePyClass();
         py::dict data;
         if (type->isArrayTy())
         {
@@ -28,12 +27,11 @@ namespace llvm_python {
                 data["subtype"] = handleType(i, PT);
             }
         }
-        typeObject.attr("setup")(
+        return PT.TypePyClass(
                 py::cast(to_string<Type>(type)),
                 py::cast((int) type->getTypeID()),
                 data
         );
-        return typeObject;
     }
 
     py::object handleOperand(Value *value, const PythonTypes &PT)
@@ -197,7 +195,7 @@ namespace llvm_python {
 
     py::object createModule(const std::string &IR)
     {
-        py::object IRPyModule = py::module_::import("llvm_python.ir");
+        py::object IRPyModule = py::module_::import("llpy.ir");
         PythonTypes PT = PythonTypes{
                 IRPyModule,
                 IRPyModule.attr("Module"),
@@ -209,9 +207,8 @@ namespace llvm_python {
                 IRPyModule.attr("Instruction"),
         };
 
-        Module *module = parse_module(IR);
-        py::object result = handleModule(module, PT);
-        delete module;
+        std::unique_ptr<Module> module = parse_module(IR);
+        py::object result = handleModule(module.get(), PT);
         return result;
     }
 }

@@ -1,5 +1,5 @@
-from llvm_python import parse_assembly
-from llvm_python.utils import dump
+from llpy import parse_assembly
+from llpy.utils import dump
 
 
 ir_text = """; Function Attrs: noinline nounwind optnone uwtable

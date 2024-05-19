@@ -7,7 +7,7 @@ from .value import Value
 
 class Block(Value):
     # Tuple of instruction objects that the block contains
-    instructions: Tuple[Instruction]
+    instructions: Tuple[Instruction, ...]
     _fields = (
         'instructions',
         'name',
@@ -15,7 +15,7 @@ class Block(Value):
         'type_'
     )
 
-    def __init__(self, instructions, pred_blocks_names: Tuple[str], value_args: Tuple):
+    def __init__(self, instructions, pred_blocks_names: Tuple[str, ...], value_args: Tuple):
         super().__init__(*value_args)
         self.instructions = instructions
         self.pred_blocks_names = pred_blocks_names
