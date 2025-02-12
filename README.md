@@ -76,6 +76,10 @@ for block in mod.get_function("factorial_req").blocks:
 g.save("cfg.dot")
 ```
 
+Result:
+
+![factorial cfg](./examples/factorial_cfg.svg)
+
 # Installation
 
 ## Preferred way
@@ -126,7 +130,7 @@ Example:
 
 ### Or you can download compiled libraries
 
-* Deb пакеты https://apt.llvm.org/
+* Deb packages https://apt.llvm.org/
 * Windows https://packages.msys2.org/package/mingw-w64-x86_64-llvm
 
 4. Run setup.py
