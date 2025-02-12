@@ -5,6 +5,9 @@
 
 # llvm2py
 
+> Last change:
+> Added support CPython3.13 on manylinux and windows
+
 A fairly large proportion of programs are written in C/C++.
 
 Let's imagine that you need to analyze programs in a given language, to search for vulnerabilities, to detect patterns or for optimization purposes.
@@ -88,7 +91,7 @@ Result:
 
 Supported versions
 
-CPython3.7 - CPython3.12
+CPython3.7 - CPython3.13
 
 On Windows 64bit and manylinux x86_64 platforms.
 
