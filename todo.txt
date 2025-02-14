@@ -1,0 +1,6 @@
+[ ] Complete migration to separate classes for unique instructions like "phi", "call", "alloca", "load", "store"... with useful functions (methods or separate)
+[ ] Move classes to general repr function from tools
+[ ] Add automatic creation of instrinsics python module from tablegen
+[ ] Rewrite test_library.py
+[ ] Check example on correctness
+[ ] Handle global aliases for variables and functions?

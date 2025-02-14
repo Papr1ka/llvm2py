@@ -1,8 +1,8 @@
-from .tools import ParentMixin, CodeMixin, LinkedListMixin
+from .tools import CodeMixin
 from .type import Type
 
 
-class Value(ParentMixin, CodeMixin, LinkedListMixin):
+class Value(CodeMixin):
     """
     Name or presentation as operand
 
@@ -10,18 +10,16 @@ class Value(ParentMixin, CodeMixin, LinkedListMixin):
     Value name can be 1.500000e+01, -2.700000e+01, 0x4080133340000000
     Block with name %8 will have name %8
     """
-    name: str
-    type_: Type
 
-    _fields = (
-        'name',
-        'type_'
-    )
+    name: str
+    ty: Type
+
+    _fields = ("name", "type_")
 
     def __init__(self, name: str, type_: Type, code) -> None:
         super().__init__(code)
         self.name = name
-        self.type_ = type_
+        self.ty = type_
 
     def __repr__(self) -> str:
         t = type(self)

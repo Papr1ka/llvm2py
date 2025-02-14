@@ -7,7 +7,7 @@ from .value import Value
 
 class Opcode(Enum):
     Invalid = 0
-    
+
     # Term instructions
     Ret = 1
     Br = 2
@@ -20,10 +20,10 @@ class Opcode(Enum):
     CatchRet = 9
     CatchSwitch = 10
     CallBr = 11  # A call-site terminator
-    
+
     # Unary operators
     FNeg = 12
-    
+
     # Binary operators
     Add = 13
     FAdd = 14
@@ -37,7 +37,7 @@ class Opcode(Enum):
     URem = 22
     SRem = 23
     FRem = 24
-    
+
     # Logical operators
     Shl = 25  # Shift left  (logical)
     LShr = 26  # Shift right (logical)
@@ -45,7 +45,7 @@ class Opcode(Enum):
     And = 28
     Or = 29
     Xor = 30
-    
+
     # Memory operators
     Alloca = 31  # Stack management
     Load = 32  # Memory manipulation instrs
@@ -54,7 +54,7 @@ class Opcode(Enum):
     Fence = 35
     AtomicCmpXchg = 36
     AtomicRMW = 37
-    
+
     # Cast operators
     Trunc = 38  # Truncate integers
     ZExt = 39  # Zero extend integers
@@ -69,10 +69,10 @@ class Opcode(Enum):
     IntToPtr = 48  # Integer -> Pointer
     BitCast = 49  # Type cast
     AddrSpaceCast = 50  # addrspace cast
-    
+
     CleanupPad = 51
     CatchPad = 52
-    
+
     # Other instructions
     ICmp = 53  # Integer comparison instruction
     FCmp = 54  # Floating point comparison instr.
@@ -93,10 +93,10 @@ class Opcode(Enum):
 
 class Instruction(Value):
     # Instruction opcode
-    op_code: Opcode
+    opcode: Opcode
     # Instruction opcode name
     op_code_name: str
-    # Tuple of operand instruction operands
+    # Tuple of instruction operands
     operands: Tuple[Value, ...]
     """
     Additional data, different for each instruction
@@ -111,35 +111,31 @@ class Instruction(Value):
         SourceElementType: Type
         ResultElementType: Type
         Indices: Tuple[Value]
+    PHI:
+        IncomingBlocks: Tuple[str]
     """
     additional_data: Dict[str, Any]
 
     _fields = (
-        'op_code',
-        'op_code_name',
-        'operands',
-        'data',
-        'name',
-        'type_',
+        "op_code",
+        "op_code_name",
+        "operands",
+        "data",
+        "name",
+        "type_",
     )
 
-    def __init__(self, op_code: int, op_code_name: str, operands: Tuple[Value], data, value_args: Tuple):
+    def __init__(
+        self,
+        opcode: int,
+        op_code_name: str,
+        operands: Tuple[Value],
+        data,
+        value_args: Tuple,
+    ):
         super().__init__(*value_args)
-        self.op_code = Opcode(op_code)
+        self.opcode = Opcode(opcode)
         self.op_code_name = op_code_name
         self.additional_data = data
 
-        for i, operand in enumerate(operands):
-            if operand.name.startswith("llvm."):
-                # intrinsic, must be a function instead of a value
-                def swap_later(module):
-                    new_operands = [*self.operands[:i],
-                                    module.get_function(self.operands[i].name),
-                                    *self.operands[i + 1:]]
-                    self.operands = tuple(new_operands)
-                _queue.append(swap_later)
-
         self.operands = operands
-
-        self._connect(operands)
-        setup_nodes(operands)

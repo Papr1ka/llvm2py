@@ -10,6 +10,7 @@ namespace llvm2py {
         py::object ModulePyClass;
         py::object FunctionPyClass;
         py::object BlockPyClass;
+        py::object GlobalVariablePyClass;
         py::object ArgumentPyClass;
         py::object TypePyClass;
         py::object ValuePyClass;
@@ -36,12 +37,38 @@ namespace llvm2py {
 
     py::object handleOperand(Value *value, const PythonTypes &PT)
     {
+        if (auto * constExpr = dyn_cast<ConstantExpr>(value))
+        {
+            Instruction* instr = constExpr->getAsInstruction();
+            return handleInstruction(*instr, PT);
+        }
         py::object valueObject = PT.ValuePyClass(
                 py::str(getNameOrAsOperand(value)),
                 handleType(value->getType(), PT),
                 py::cast(to_string(value))
                 );
         return valueObject;
+    }
+
+    py::object handleGlobalObjectToTuple(const GlobalObject& globalObject, const PythonTypes& PT)
+    {
+        MaybeAlign Align = globalObject.getAlign();
+        py::object align;
+        if (Align.has_value())
+        {
+            align = py::int_(py::cast(Align.value()));
+        }
+        else
+        {
+            align = py::none();
+        }
+        return py::make_tuple(
+            py::int_((int ) globalObject.getAddressSpace()),
+            align,
+            py::int_((int ) globalObject.getLinkage()),
+            py::int_((int) globalObject.getUnnamedAddr()),
+            py::int_((int) globalObject.getVisibility())
+        );
     }
 
     py::object handleValueToTuple(const Value& value, const PythonTypes& PT)
@@ -73,6 +100,15 @@ namespace llvm2py {
             }
             data["Indices"] = py::tuple(py::cast(indices));
         }
+        else if (auto * instr = dyn_cast<PHINode>(&instruction))
+        {
+            std::vector<py::object> incomingBlocks;
+            for (const BasicBlock* block : instr->blocks())
+            {
+                incomingBlocks.push_back(py::str(getNameOrAsOperand(block)));
+            }
+            data["IncomingBlocks"] = py::tuple(py::cast(incomingBlocks));
+        }
         return data;
     }
 
@@ -101,8 +137,9 @@ namespace llvm2py {
     py::object handleBlock(BasicBlock &block, const PythonTypes &PT)
     {
         std::vector<py::object> instructions;
-
         std::vector<py::object> predBlocks;
+
+        instructions.reserve(block.size());
 
         for (BasicBlock* basicBlock : predecessors(&block))
         {
@@ -120,6 +157,39 @@ namespace llvm2py {
                 handleValueToTuple(block, PT)
                 );
         return blockObject;
+    }
+
+    py::object handleGlobalVariable(const GlobalVariable& var, const PythonTypes &PT)
+    {
+        std::vector<py::object> attributes;
+        AttributeSet attributeSet = var.getAttributes();
+        attributes.reserve(attributeSet.getNumAttributes());
+
+        for (const Attribute &attribute: attributeSet)
+        {
+            py::object attributeObject = py::str(attribute.getAsString());
+            attributes.push_back(attributeObject);
+        }
+
+        py::object initializer;
+        if (var.hasInitializer())
+        {
+            initializer = handleValueToTuple(*var.getInitializer(), PT); 
+        }
+        else
+        {
+            initializer = py::none();
+        }
+
+        py::object globalVariableObject = PT.GlobalVariablePyClass(
+            py::tuple(py::cast(attributes)),
+            initializer,
+            py::bool_(var.isConstant()),
+            py::bool_(var.isExternallyInitialized()),
+            handleGlobalObjectToTuple(var, PT),
+            handleValueToTuple(var, PT)
+            );
+        return globalVariableObject;
     }
 
     py::object handleArgument(Argument &argument, const PythonTypes &PT)
@@ -168,9 +238,8 @@ namespace llvm2py {
                 py::tuple(py::cast(blocks)),
                 py::tuple(py::cast(attributeList)),
                 handleType(function.getReturnType(), PT),
-                py::int_((int )function.getVisibility()),
-                py::int_((int )function.getLinkage()),
                 py::int_((int )function.getCallingConv()),
+                handleGlobalObjectToTuple(function, PT),
                 handleValueToTuple(function, PT)
                 );
         return functionObject;
@@ -181,6 +250,15 @@ namespace llvm2py {
         std::vector<py::object> functions;
         functions.reserve(module->size());
 
+        std::vector<py::object> globalVariables;
+        globalVariables.reserve(module->global_size());
+
+        for (const GlobalVariable& var : module->globals())
+        {
+            py::object varObject = handleGlobalVariable(var, PT);
+            globalVariables.push_back(varObject);
+        }
+
         for (Function &function: *module)
         {
             functions.push_back(handleFunction(function, PT));
@@ -188,6 +266,7 @@ namespace llvm2py {
 
         py::object moduleObject = PT.ModulePyClass(
                 py::tuple(py::cast(functions)),
+                py::tuple(py::cast(globalVariables)),
                 py::cast(to_string(module))
                 );
         return moduleObject;
@@ -201,6 +280,7 @@ namespace llvm2py {
                 IRPyModule.attr("Module"),
                 IRPyModule.attr("Function"),
                 IRPyModule.attr("Block"),
+                IRPyModule.attr("GlobalVariable"),
                 IRPyModule.attr("Argument"),
                 IRPyModule.attr("Type"),
                 IRPyModule.attr("Value"),

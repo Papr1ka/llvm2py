@@ -37,11 +37,7 @@ class Type:
     num_elements: int
     subtype: "Type"
 
-    _fields = (
-        'name',
-        'type_id',
-        'array'
-    )
+    _fields = ("name", "type_id", "array")
 
     def __init__(self, name: str, type_id: int, data: Dict[str, Any]):
         self.name = name

@@ -12,12 +12,17 @@
 #include "llvm/IR/CFG.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/InstrTypes.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/GlobalVariable.h"
 
 namespace py = pybind11;
 using namespace llvm;
 
 namespace llvm2py {
     py::object createModule(const std::string& IR);
+
+    struct PythonTypes;
+    py::object handleInstruction(Instruction &instruction, const PythonTypes &PT);
 }
 
 #endif //LLVM2PY_MODULE_H

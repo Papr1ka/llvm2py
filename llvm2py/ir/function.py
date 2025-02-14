@@ -1,11 +1,11 @@
-from typing import Tuple, Dict
+from typing import Set, Tuple, Dict
 from enum import Enum
+
+from llvm2py.ir.global_object import GlobalObject
 
 from .argument import Argument
 from .block import Block
-from .tools import setup_nodes
 from .type import Type
-from .value import Value
 
 
 class CallingConv(Enum):
@@ -65,104 +65,80 @@ class CallingConv(Enum):
     MaxID = 1023
 
 
-class LinkageType(Enum):
-    ExternalLinkage = 0  # < Externally visible function
-    AvailableExternallyLinkage = 1  # < Available for inspection, not emission.
-    LinkOnceAnyLinkage = 2  # < Keep one copy of function when linking (inline)
-    LinkOnceODRLinkage = 3  # < Same, but only replaced by something equivalent.
-    WeakAnyLinkage = 4  # < Keep one copy of named function when linking (weak)
-    WeakODRLinkage = 5  # < Same, but only replaced by something equivalent.
-    AppendingLinkage = 6  # < Special purpose, only applies to global arrays
-    InternalLinkage = 7  # < Rename collisions when linking (static functions).
-    PrivateLinkage = 8  # < Like Internal, but omit from symbol table.
-    ExternalWeakLinkage = 9  # < ExternalWeak linkage description.
-    CommonLinkage = 10  # < Tentative definitions.
+class Function(GlobalObject):
+    __match_args__ = ("name", "args", "blocks", "ret_ty")
 
-
-class VisibilityTypes(Enum):
-    DefaultVisibility = 0  # < The GV is visible
-    HiddenVisibility = 1  # < The GV is hidden
-    ProtectedVisibility = 2  # < The GV is protected
-
-
-class Function(Value):
     # Tuple of function arguments
     args: Tuple[Argument, ...]
     # A tuple of function attribute tuples,
     # it is worth paying attention to methods
     # {function, ret, arguments, argument}_attributes
-    attributes: Tuple[Tuple[str, ...], ...]
+    attrs: Tuple[Set[str], ...]
     # Tuple of block objects that the function contains
     blocks: Tuple[Block, ...]
     # A dictionary that maps block names to their objects
     blocks_map: Dict[str, Block]
     # See https://llvm.org/docs/LangRef.html#calling-conventions
     calling_convention: CallingConv
-    # See https://llvm.org/docs/LangRef.html#linkage-types
-    linkage_type: LinkageType
     # Type of function return value
-    return_type: Type
-    # Function visibility
-    visibility: VisibilityTypes
+    ret_ty: Type
 
     _fields = (
-        'args',
-        'attributes',
-        'blocks',
-        'calling_convention',
-        'linkage_type',
-        'visibility',
-        'return_type',
-        'name',
-        'type_'
+        "args",
+        "attrs",
+        "blocks",
+        "calling_convention",
+        "linkage_type",
+        "visibility",
+        "ret_ty",
+        "name",
+        "ty",
     )
 
-    def __init__(self, args, blocks, attributes, return_type, visibility, linkage_type,
-                 calling_convention, value_args: Tuple):
-        super().__init__(*value_args)
+    def __init__(
+        self,
+        args: Tuple[Argument],
+        blocks: Tuple[Block],
+        attrs: Tuple[str],
+        return_type: Type,
+        calling_convention: int,
+        global_object_args: Tuple,
+        value_args: Tuple,
+    ):
+        super().__init__(*global_object_args, value_args)
         self.args = args
         self.blocks = blocks
         self.blocks_map = {block.name: block for block in blocks}
-        self.attributes = attributes
+        self.attrs = tuple(set(attrs) for attrs in attrs)
         self.return_type = return_type
-        self.visibility = VisibilityTypes(visibility)
-        self.linkage_type = LinkageType(linkage_type)
         self.calling_convention = CallingConv(calling_convention)
-
-        self._connect(args)
-        self._connect(blocks)
-        setup_nodes(args)
-        setup_nodes(blocks)
-
-        for block in self.blocks:
-            block._setup_pred_blocks([self.blocks_map[block_name] for block_name in block.pred_blocks_names])
 
     def function_attributes(self):
         """
         Returns a tuple of function attributes
         """
-        return self.attributes[0]
+        return self.attrs[0]
 
     def ret_attributes(self):
         """
         Returns a tuple of attributes of the returned value
         """
-        return self.attributes[1]
+        return self.attrs[1]
 
     def arguments_attributes(self):
         """
         Returns a tuple of tuples of attributes of the arguments of the function
         """
-        return self.attributes[2:]
+        return self.attrs[2:]
 
     def argument_attributes(self, arg_no: int):
         """
         Returns a tuple of the attributes of the function argument
         """
-        if arg_no + 3 > len(self.attributes):
+        if arg_no + 3 > len(self.attrs):
             return None
         else:
-            return self.attributes[2 + arg_no]
+            return self.attrs[2 + arg_no]
 
     def get_block(self, name):
         """
