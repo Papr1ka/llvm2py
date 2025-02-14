@@ -14,6 +14,7 @@
 #include "llvm/IR/InstrTypes.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/GlobalVariable.h"
+#include "llvm/Support/Alignment.h"
 
 namespace py = pybind11;
 using namespace llvm;

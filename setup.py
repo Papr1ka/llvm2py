@@ -15,10 +15,11 @@ sources = [
     "include/module.h",
     "include/parser.h",
     "include/tools.h",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
 ]
 
-LLVM_DIR = "/usr/lib/llvm-18/cmake" # Path to cmake folder of llvm library
+LLVM_DIR = "/usr/lib/llvm-18/cmake"  # Path to cmake folder of llvm library
+
 
 class CMakeExtension(Extension):
     def __init__(self, name: str, sourcedir: str = "") -> None:
@@ -49,7 +50,7 @@ class CMakeBuild(build_ext):
         # EXAMPLE_VERSION_INFO shows you how to pass a value into the C++ code
         # from Python.
         p = platform.system()
-        
+
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
@@ -57,7 +58,7 @@ class CMakeBuild(build_ext):
         ]
         if p == "Linux" and LLVM_DIR is not None:
             cmake_args.append(f"-DLLVM_DIR={LLVM_DIR}")
-        
+
         build_args = []
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
@@ -136,18 +137,18 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 
 with open("./README.md", encoding="utf-8") as file:
-    long_description=file.read()
+    long_description = file.read()
 
 setup(
     name="llvm2py",
-    version="0.0.1b2",
+    version="0.0.1b3",
     author="Papr1ka",
     url="https://github.com/Papr1ka/llvm2py",
     author_email="kirillpavlov4214@gmail.com",
     description="A library for analyzing LLVM IR in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=['llvm2py', 'llvm2py/ir'],
+    packages=["llvm2py", "llvm2py/ir"],
     ext_modules=[CMakeExtension("llvm2py._llvm2py")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
@@ -171,6 +172,15 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
     ],
-    keywords=["llvm", "analysis", "ir", "intermediate", "presentation", "representation", "compiler", "parser"],
-    license="MIT"
+    keywords=[
+        "llvm",
+        "analysis",
+        "ir",
+        "intermediate",
+        "presentation",
+        "representation",
+        "compiler",
+        "parser",
+    ],
+    license="MIT",
 )

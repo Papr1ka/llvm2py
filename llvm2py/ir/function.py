@@ -100,7 +100,7 @@ class Function(GlobalObject):
         args: Tuple[Argument],
         blocks: Tuple[Block],
         attrs: Tuple[str],
-        return_type: Type,
+        ret_ty: Type,
         calling_convention: int,
         global_object_args: Tuple,
         value_args: Tuple,
@@ -110,7 +110,7 @@ class Function(GlobalObject):
         self.blocks = blocks
         self.blocks_map = {block.name: block for block in blocks}
         self.attrs = tuple(set(attrs) for attrs in attrs)
-        self.return_type = return_type
+        self.ret_ty = ret_ty
         self.calling_convention = CallingConv(calling_convention)
 
     def function_attributes(self):

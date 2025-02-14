@@ -1,7 +1,3 @@
-from weakref import proxy
-from collections import deque
-
-
 class CodeMixin:
     """
     The class provides a field to store the code

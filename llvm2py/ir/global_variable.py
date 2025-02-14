@@ -1,7 +1,5 @@
-from enum import Enum
-from typing import Tuple, Union
+from typing import Tuple
 
-from llvm2py.ir.function import LinkageType, VisibilityTypes
 from llvm2py.ir.global_object import GlobalObject
 
 from .value import Value
@@ -42,14 +40,10 @@ class GlobalVariable(GlobalObject):
 
     def __init__(
         self,
-        # addr_space: int,
         attributes: Tuple[str],
         initializer_args: Tuple,
         is_const: bool,
         is_externally_initialized: bool,
-        # linkage: int,
-        # unnamed_addr: int,
-        # visibility: int,
         global_object_args: Tuple,
         value_args: Tuple,
     ):

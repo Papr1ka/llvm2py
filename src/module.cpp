@@ -53,18 +53,10 @@ namespace llvm2py {
     py::object handleGlobalObjectToTuple(const GlobalObject& globalObject, const PythonTypes& PT)
     {
         MaybeAlign Align = globalObject.getAlign();
-        py::object align;
-        if (Align.has_value())
-        {
-            align = py::int_(py::cast(Align.value()));
-        }
-        else
-        {
-            align = py::none();
-        }
+        int alignment = Align ? Align->value() : 0;
         return py::make_tuple(
             py::int_((int ) globalObject.getAddressSpace()),
-            align,
+            py::int_(alignment),
             py::int_((int ) globalObject.getLinkage()),
             py::int_((int) globalObject.getUnnamedAddr()),
             py::int_((int) globalObject.getVisibility())
