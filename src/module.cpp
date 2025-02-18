@@ -430,6 +430,18 @@ namespace llvm2py {
                 AtomicRMWInst* instr = (AtomicRMWInst*)(&instruction);
                 return py::make_tuple(py::str(instr->getOperationName(instr->getOperation()).str()));
             }
+            case Instruction::ShuffleVector:
+            {
+                ShuffleVectorInst* instr = (ShuffleVectorInst*)(&instruction);
+                ArrayRef<int> mask = instr->getShuffleMask();
+                std::vector<py::object> arr;
+                arr.reserve(mask.size());
+                for (int i : mask)
+                {
+                    arr.push_back(py::int_(i));
+                }
+                return py::make_tuple(py::list(py::cast(arr)));
+            }
             default:
                 return py::none();
         }

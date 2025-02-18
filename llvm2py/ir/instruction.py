@@ -189,7 +189,7 @@ class InsertElement(Instruction):
 class ShuffleVector(Instruction):
     fst_vector: Value
     snd_vector: Value
-    mask_vector: Value
+    mask_vector: list[int]
 
     def __str__(self):
         return f"{self.result} = shufflevector {self.fst_vector}, {self.snd_vector}, {self.mask_vector}"
@@ -548,7 +548,7 @@ _constructors = [
     # vector, 61
     (ExtractElement, lambda operands, additional, callattrs: operands),
     (InsertElement, lambda operands, additional, callattrs: operands),
-    (ShuffleVector, lambda operands, additional, callattrs: operands),
+    (ShuffleVector, lambda operands, additional, callattrs: (*operands, additional[0])),
     # aggregate, 64
     (ExtractValue, lambda operands, additional, callattrs: (*operands, additional[0])),
     (InsertValue, lambda operands, additional, callattrs: (*operands, additional[0])),
