@@ -18,3 +18,4 @@ All notable changes to this project will be documented in this file.
 9. The Value class is now used to store constants up to ConstantExpression (val type will be Instruction type)
 10. Simplified methods are implemented for classes (do not handle attributes).
 11. The minimum supported version of python is now **3.10**
+12. New type hierarchy
