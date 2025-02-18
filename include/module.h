@@ -15,6 +15,8 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/Support/Alignment.h"
+#include "llvm/IR/TypedPointerType.h"
+#include "llvm/IR/FMF.h"
 
 namespace py = pybind11;
 using namespace llvm;
@@ -23,7 +25,7 @@ namespace llvm2py {
     py::object createModule(const std::string& IR);
 
     struct PythonTypes;
-    py::object handleInstruction(Instruction &instruction, const PythonTypes &PT);
+    py::object handleInstruction(const Instruction &instruction, const PythonTypes &PT);
 }
 
 #endif //LLVM2PY_MODULE_H

@@ -5,8 +5,10 @@
 
 # llvm2py
 
-> Last change:
-> Added support CPython3.13 on manylinux and windows
+### Changelog
+
+[changelog](./CHANGELOG.md)
+
 
 A fairly large proportion of programs are written in C/C++.
 

@@ -141,7 +141,7 @@ with open("./README.md", encoding="utf-8") as file:
 
 setup(
     name="llvm2py",
-    version="0.0.1b3",
+    version="0.1.0b",
     author="Papr1ka",
     url="https://github.com/Papr1ka/llvm2py",
     author_email="kirillpavlov4214@gmail.com",
@@ -152,7 +152,7 @@ setup(
     ext_modules=[CMakeExtension("llvm2py._llvm2py")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
-    python_requires=">=3.7",
+    python_requires=">=3.10",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Operating System :: Microsoft :: Windows",
@@ -165,9 +165,6 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",

@@ -1,8 +1,9 @@
 from .module import Module
 from .function import Function
 from .block import Block
-from .argument import Argument
-from .type import Type
+from .type import *
 from .value import Value
-from .instruction import Instruction
+from .instruction import Instruction, _create_instruction
 from .global_variable import GlobalVariable
+from .global_object import GlobalObject
+from . import tools

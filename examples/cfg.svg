@@ -1,0 +1,73 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="388pt" height="427pt" viewBox="0.00 0.00 387.71 427.20">
+<g id="graph0" class="graph" transform="translate(4,423.20001220703125) scale(1)" data-name="">
+<polygon fill="white" stroke="none" points="-4,4 -4,-423.2 383.71,-423.2 383.71,4 -4,4" style=""/>
+<!-- 1 -->
+<g id="node1" class="node" pointer-events="visible" data-name="1">
+
+<polygon fill="#b70d28" fill-opacity="0.439216" stroke="#b70d28" stroke-opacity="0.439216" points="65.11,-293.1 65.11,-418.7 252.71,-418.7 252.71,-293.1 65.11,-293.1" style=""/>
+<text text-anchor="middle" x="158.91" y="-402.1" font-family="Times,serif" font-size="14.00" style="">%1:</text>
+<text text-anchor="middle" x="158.91" y="-385.3" font-family="Times,serif" font-size="14.00" style="">ptr %2 = alloca i32, i32 1</text>
+<text text-anchor="middle" x="158.91" y="-368.5" font-family="Times,serif" font-size="14.00" style="">ptr %3 = alloca i32, i32 1</text>
+<text text-anchor="middle" x="158.91" y="-351.7" font-family="Times,serif" font-size="14.00" style="">store i32 %0, ptr %3</text>
+<text text-anchor="middle" x="158.91" y="-334.9" font-family="Times,serif" font-size="14.00" style="">i32 %4 = load ptr %3</text>
+<text text-anchor="middle" x="158.91" y="-318.1" font-family="Times,serif" font-size="14.00" style="">i1 %5 = icmp eq i32 %4, i32 1</text>
+<text text-anchor="middle" x="158.91" y="-301.3" font-family="Times,serif" font-size="14.00" style="">br i1 %5, label %6, label %7</text>
+</g>
+<!-- 6 -->
+<g id="node2" class="node" pointer-events="visible" data-name="6">
+
+<polygon fill="#f59c7d" fill-opacity="0.439216" stroke="#f59c7d" stroke-opacity="0.439216" points="0,-138.9 0,-197.3 119.82,-197.3 119.82,-138.9 0,-138.9" style=""/>
+<text text-anchor="middle" x="59.91" y="-180.7" font-family="Times,serif" font-size="14.00" style="">%6:</text>
+<text text-anchor="middle" x="59.91" y="-163.9" font-family="Times,serif" font-size="14.00" style="">store i32 1, ptr %2</text>
+<text text-anchor="middle" x="59.91" y="-147.1" font-family="Times,serif" font-size="14.00" style="">br label %13</text>
+</g>
+<!-- 1&#45;&gt;6 -->
+<g id="edge1" class="edge" data-name="1-&gt;6">
+
+<path fill="none" stroke="black" d="M126.08,-293.29C110.91,-264.82 93.38,-231.91 80.17,-207.13" style=""/>
+<polygon fill="black" stroke="black" points="83.3,-205.56 75.51,-198.38 77.12,-208.85 83.3,-205.56" style=""/>
+<text text-anchor="middle" x="129.12" y="-262" font-family="Times,serif" font-size="14.00" style="">True</text>
+</g>
+<!-- 7 -->
+<g id="node3" class="node" pointer-events="visible" data-name="7">
+
+<polygon fill="#f59c7d" fill-opacity="0.439216" stroke="#f59c7d" stroke-opacity="0.439216" points="138.11,-96.9 138.11,-239.3 379.71,-239.3 379.71,-96.9 138.11,-96.9" style=""/>
+<text text-anchor="middle" x="258.91" y="-222.7" font-family="Times,serif" font-size="14.00" style="">%7:</text>
+<text text-anchor="middle" x="258.91" y="-205.9" font-family="Times,serif" font-size="14.00" style="">i32 %8 = load ptr %3</text>
+<text text-anchor="middle" x="258.91" y="-189.1" font-family="Times,serif" font-size="14.00" style="">i32 %9 = sub i32 %8, i32 1</text>
+<text text-anchor="middle" x="258.91" y="-172.3" font-family="Times,serif" font-size="14.00" style="">i32 %10 = call ptr factorial_req(i32 %9)</text>
+<text text-anchor="middle" x="258.91" y="-155.5" font-family="Times,serif" font-size="14.00" style="">i32 %11 = load ptr %3</text>
+<text text-anchor="middle" x="258.91" y="-138.7" font-family="Times,serif" font-size="14.00" style="">i32 %12 = mul i32 %10, i32 %11</text>
+<text text-anchor="middle" x="258.91" y="-121.9" font-family="Times,serif" font-size="14.00" style="">store i32 %12, ptr %2</text>
+<text text-anchor="middle" x="258.91" y="-105.1" font-family="Times,serif" font-size="14.00" style="">br label %13</text>
+</g>
+<!-- 1&#45;&gt;7 -->
+<g id="edge2" class="edge" data-name="1-&gt;7">
+
+<path fill="none" stroke="black" d="M192.07,-293.29C199.64,-279.21 207.8,-264.05 215.73,-249.33" style=""/>
+<polygon fill="black" stroke="black" points="218.8,-251.01 220.45,-240.55 212.63,-247.7 218.8,-251.01" style=""/>
+<text text-anchor="middle" x="223.68" y="-262" font-family="Times,serif" font-size="14.00" style="">False</text>
+</g>
+<!-- 13 -->
+<g id="node4" class="node" pointer-events="visible" data-name="13">
+
+<polygon fill="#b70d28" fill-opacity="0.439216" stroke="#b70d28" stroke-opacity="0.439216" points="87.28,-0.5 87.28,-58.9 230.54,-58.9 230.54,-0.5 87.28,-0.5" style=""/>
+<text text-anchor="middle" x="158.91" y="-42.3" font-family="Times,serif" font-size="14.00" style="">%13:</text>
+<text text-anchor="middle" x="158.91" y="-25.5" font-family="Times,serif" font-size="14.00" style="">i32 %14 = load ptr %2</text>
+<text text-anchor="middle" x="158.91" y="-8.7" font-family="Times,serif" font-size="14.00" style="">ret i32 %14</text>
+</g>
+<!-- 6&#45;&gt;13 -->
+<g id="edge3" class="edge" data-name="6-&gt;13">
+
+<path fill="none" stroke="black" d="M80.18,-139.17C95.13,-118.57 115.62,-90.34 131.95,-67.85" style=""/>
+<polygon fill="black" stroke="black" points="134.73,-69.97 137.77,-59.82 129.07,-65.86 134.73,-69.97" style=""/>
+</g>
+<!-- 7&#45;&gt;13 -->
+<g id="edge4" class="edge" data-name="7-&gt;13">
+
+<path fill="none" stroke="black" d="M207.44,-96.9C200.06,-86.83 192.71,-76.81 186.05,-67.73" style=""/>
+<polygon fill="black" stroke="black" points="189.02,-65.86 180.29,-59.86 183.38,-70 189.02,-65.86" style=""/>
+</g>
+</g>
+</svg>

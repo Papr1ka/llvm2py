@@ -1,27 +1,36 @@
-from .tools import CodeMixin
+from typing import NamedTuple
 from .type import Type
 
 
-class Value(CodeMixin):
+class Instruction: ...
+
+
+class Value(NamedTuple):
     """
-    Name or presentation as operand
+    A base class for many IR entities
 
-    Constant int value 42 will have name 42
-    Value name can be 1.500000e+01, -2.700000e+01, 0x4080133340000000
-    Block with name %8 will have name %8
+    A class can represent a name, a constant, or a constant expression
+
+    Regardless of the meaning, the value is stored in the val field
+
+    Constant aggregate zero (zeroinitializer) represented by int(0)
     """
 
-    name: str
-    ty: Type
+    # fmt: off
+    val: (
+        str                         # Name
+        | int                       # Constant int (not int8)
+        | float                     # Constant float
+        | list[int]                 # Constant Data {Array | Vector} of integers
+        | list[float]               # Constant Data {Array | Vector} of FP values
+        | list["Value"]             # Constant Aggregates (Array | Vector | Struct) of Values 
+        | None                      # Constant Null Pointer
+        | bytes                     # Array of int8 (CString for example)
+        | tuple[str, str]           # Block address (Function name, Block name)
+        | Instruction               # Constant expression
+    )
+    # fmt: on
+    ty: Type  # Value type
 
-    _fields = ("name", "type_")
-
-    def __init__(self, name: str, type_: Type, code) -> None:
-        super().__init__(code)
-        self.name = name
-        self.ty = type_
-
-    def __repr__(self) -> str:
-        t = type(self)
-        return f"<{t.__module__}.{t.__qualname__} at\
-{hex(id(self))}, name={self.name}>"
+    def __str__(self):
+        return f"{self.ty} {self.val}"

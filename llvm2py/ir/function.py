@@ -1,11 +1,13 @@
-from typing import Set, Tuple, Dict
 from enum import Enum
 
-from llvm2py.ir.global_object import GlobalObject
+from dataclasses import dataclass
+from xml.dom.minidom import Attr
 
-from .argument import Argument
+from .global_object import GlobalObject
+
 from .block import Block
-from .type import Type
+from .value import Value
+from .instruction import Attrs
 
 
 class CallingConv(Enum):
@@ -65,83 +67,53 @@ class CallingConv(Enum):
     MaxID = 1023
 
 
-class Function(GlobalObject):
-    __match_args__ = ("name", "args", "blocks", "ret_ty")
-
-    # Tuple of function arguments
-    args: Tuple[Argument, ...]
-    # A tuple of function attribute tuples,
-    # it is worth paying attention to methods
-    # {function, ret, arguments, argument}_attributes
-    attrs: Tuple[Set[str], ...]
-    # Tuple of block objects that the function contains
-    blocks: Tuple[Block, ...]
-    # A dictionary that maps block names to their objects
-    blocks_map: Dict[str, Block]
-    # See https://llvm.org/docs/LangRef.html#calling-conventions
-    calling_convention: CallingConv
-    # Type of function return value
-    ret_ty: Type
-
-    _fields = (
+@dataclass
+class Function:
+    __match_args__ = (
+        "value",
         "args",
-        "attrs",
         "blocks",
         "calling_convention",
-        "linkage_type",
-        "visibility",
-        "ret_ty",
-        "name",
-        "ty",
+        "global_object",
+        "attrs",
     )
+
+    # function as value
+    value: Value
+
+    # function arguments
+    args: list[Value]
+
+    # function basic blocks
+    blocks: list[Block]
+
+    # A list of function attribute tuples,
+    # it is worth paying attention to methods
+    # {function, ret, arguments, argument}_attributes
+    attrs: list[Attrs]
+
+    calling_convention: CallingConv
+
+    # function as global object
+    global_object: GlobalObject
 
     def __init__(
         self,
-        args: Tuple[Argument],
-        blocks: Tuple[Block],
-        attrs: Tuple[str],
-        ret_ty: Type,
+        value: Value,
+        args: list[Value],
+        blocks: list[Block],
+        attrs: list[Attrs],
         calling_convention: int,
-        global_object_args: Tuple,
-        value_args: Tuple,
+        global_object: GlobalObject,
     ):
-        super().__init__(*global_object_args, value_args)
+        self.value = value
         self.args = args
         self.blocks = blocks
-        self.blocks_map = {block.name: block for block in blocks}
-        self.attrs = tuple(set(attrs) for attrs in attrs)
-        self.ret_ty = ret_ty
+        self.attrs = list(set(attrs) for attrs in attrs)
         self.calling_convention = CallingConv(calling_convention)
+        self.global_object = global_object
 
-    def function_attributes(self):
-        """
-        Returns a tuple of function attributes
-        """
-        return self.attrs[0]
-
-    def ret_attributes(self):
-        """
-        Returns a tuple of attributes of the returned value
-        """
-        return self.attrs[1]
-
-    def arguments_attributes(self):
-        """
-        Returns a tuple of tuples of attributes of the arguments of the function
-        """
-        return self.attrs[2:]
-
-    def argument_attributes(self, arg_no: int):
-        """
-        Returns a tuple of the attributes of the function argument
-        """
-        if arg_no + 3 > len(self.attrs):
-            return None
-        else:
-            return self.attrs[2 + arg_no]
-
-    def get_block(self, name):
-        """
-        Returns the block object by name
-        """
-        return self.blocks_map.get(name)
+    def __str__(self):
+        args = ", ".join(map(str, self.args))
+        blocks = "\n".join(map(str, self.blocks))
+        return f"define {self.value.ty} @{self.value.val}({args}) {{\n{blocks}\n}}"

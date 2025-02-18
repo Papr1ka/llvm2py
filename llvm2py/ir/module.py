@@ -1,29 +1,29 @@
-from typing import Tuple, Dict
-
-from llvm2py.ir.global_variable import GlobalVariable
+from dataclasses import dataclass
+from .global_variable import GlobalVariable
 
 from .function import Function
-from .tools import CodeMixin
 
 
-class Module(CodeMixin):
+@dataclass
+class Module:
     __match_args__ = ("funcs", "global_vars")
-    _fields = ("funcs", "global_variables", "name", "ty")
 
     # Tuple of function objects that the module contains
-    funcs: Tuple[Function]
-    # A dictionary that maps function names to their objects
-    funcs_map: Dict[str, Function]
+    funcs: list[Function]
     # A dictionary that mapf global variable names to their objects
-    global_vars: Dict[str, GlobalVariable]
+    global_vars: dict[str, GlobalVariable]
+    # A dictionary that maps function names to their objects
+    funcs_map: dict[str, Function]
 
-    def __init__(
-        self, funcs: Tuple[Function], global_vars: Tuple[GlobalVariable], code
-    ):
-        super().__init__(code)
-        self.funcs_map = {func.name: func for func in funcs}
+    def __init__(self, funcs: dict[Function], global_vars: tuple[GlobalVariable]):
+        self.funcs_map = {func.value.val: func for func in funcs}
         self.funcs = funcs
-        self.global_vars = {var.name: var for var in global_vars}
+        self.global_vars = {var.value.val: var for var in global_vars}
+
+    def __str__(self):
+        gvars = "\n".join(map(str, self.global_vars.values()))
+        funcs = "\n".join(map(str, self.funcs))
+        return gvars + "\n\n" + funcs
 
     def get_function(self, name: str):
         """

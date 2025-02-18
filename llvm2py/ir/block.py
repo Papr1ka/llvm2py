@@ -1,18 +1,17 @@
-from typing import Tuple
-
+from typing import NamedTuple
 from .instruction import Instruction
 from .value import Value
 
 
-class Block(Value):
-    # Tuple of instruction objects that the block contains
-    instrs: Tuple[Instruction, ...]
+class Block(NamedTuple):
+    # block as value
+    value: Value
 
-    # Tuple of predecessor block names
-    pred_blocks: Tuple[str, ...]
-    _fields = ("instrs", "pred_blocks", "name", "type_")
+    # block instructions
+    instrs: list[Instruction]
 
-    def __init__(self, instrs, pred_blocks: Tuple[str, ...], value_args: Tuple):
-        super().__init__(*value_args)
-        self.instrs = instrs
-        self.pred_blocks = pred_blocks
+    # predecessor block names
+    pred_blocks: list[str]
+
+    def __str__(self):
+        return f"{self.value.val}:\n\t" + "\n\t".join(map(str, self.instrs))

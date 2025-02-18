@@ -1,20 +1,32 @@
-class CodeMixin:
+from .instruction import Attrs
+
+
+def function_attributes(attrs: list[Attrs]):
     """
-    The class provides a field to store the code
-    that the class is associated with for beautiful __str__ output
+    Returns the attributes of the function
     """
-
-    code: str
-
-    def __init__(self, code: str, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.code = code
-
-    def __str__(self):
-        return self.code
+    return attrs[0]
 
 
-def repr(node):
-    node_name = node.__class__.__name__
-    attrs = ", ".join(f"{attr}={getattr(node, attr)}" for attr in node._fields)
-    return f"<{node_name} {attrs}>"
+def ret_attributes(attrs: list[Attrs]):
+    """
+    Returns the attributes of the returned value
+    """
+    return attrs[1]
+
+
+def arguments_attributes(attrs: list[Attrs]):
+    """
+    Returns the attributes of the arguments
+    """
+    return attrs[2:]
+
+
+def argument_attributes(attrs: list[Attrs], arg_no: int):
+    """
+    Returns the argument attributes
+    """
+    if arg_no + 3 > len(attrs):
+        return None
+    else:
+        return attrs[2 + arg_no]
