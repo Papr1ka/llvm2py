@@ -55,7 +55,8 @@ class TargetExtensionType(NamedTuple):
     params: list[int | Type]
 
     def __str__(self):
-        return f"target({', '.join(map(str, ['\"' + self.name + '\"'] + self.params))})"
+        name = ['"' + self.name + '"']
+        return f"target({', '.join(map(str, name + self.params))})"
 
 
 class VectorType(NamedTuple):
