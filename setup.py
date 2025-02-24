@@ -141,7 +141,7 @@ with open("./README.md", encoding="utf-8") as file:
 
 setup(
     name="llvm2py",
-    version="0.1.0b1",
+    version="0.1.0b2",
     author="Papr1ka",
     url="https://github.com/Papr1ka/llvm2py",
     author_email="kirillpavlov4214@gmail.com",

@@ -87,7 +87,7 @@ namespace llvm2py {
         }
     }
 
-    py::object handleType(Type *type, const PythonTypes &PT)
+    py::object handleType(const Type *type, const PythonTypes &PT)
     {
         switch (type->getTypeID())
         {
@@ -198,7 +198,7 @@ namespace llvm2py {
                 return PT.VectorTypePyClass(
                     py::int_(vectorTy->getMinNumElements()),
                     handleType(vectorTy->getElementType(), PT),
-                    py::bool_(false)
+                    py::bool_(true)
                 );
             }
             case Type::TypeID::TypedPointerTyID:
@@ -332,9 +332,19 @@ namespace llvm2py {
             data = py::str(getNameOrAsOperand(value));
         }
 
+        const Type* ty;
+        if (const GlobalValue* globalValue = dyn_cast<GlobalValue>(&value))
+        {
+            ty = globalValue->getValueType();
+        }
+        else
+        {
+            ty = value.getType();
+        }
+
         return PT.ValuePyClass(
             data,
-            handleType(value.getType(), PT)
+            handleType(ty, PT)
         );
     }
 

@@ -14,12 +14,14 @@ class Value(NamedTuple):
     Regardless of the meaning, the value is stored in the val field
 
     Constant aggregate zero (zeroinitializer) represented by int(0)
+
+    Int8 array represented by bytes object
     """
 
     # fmt: off
     val: (
-        str                         # Name
-        | int                       # Constant int (not int8)
+        str                         # Name | "poison" | "undef" | ...
+        | int                       # Constant int
         | float                     # Constant float
         | list[int]                 # Constant Data {Array | Vector} of integers
         | list[float]               # Constant Data {Array | Vector} of FP values
