@@ -802,6 +802,7 @@ namespace llvm2py {
                 py::list(py::cast(blocks)),
                 attributes,
                 py::int_((int )function.getCallingConv()),
+                py::bool_(function.isVarArg()),
                 handleGlobalObject(function, PT)
             );
         return functionObject;

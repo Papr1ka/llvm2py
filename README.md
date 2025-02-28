@@ -93,7 +93,7 @@ Result:
 
 Supported versions
 
-CPython3.7 - CPython3.13
+CPython3.10 - CPython3.13
 
 On Windows 64bit and manylinux x86_64 platforms.
 

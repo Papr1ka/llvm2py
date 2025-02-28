@@ -85,7 +85,7 @@ class Function:
     args: list[Value]
 
     # function basic blocks
-    blocks: list[Block]
+    blocks: dict[str, Block]
 
     # A list of function attribute tuples,
     # it is worth paying attention to methods
@@ -93,6 +93,10 @@ class Function:
     attrs: list[Attrs]
 
     calling_convention: CallingConv
+
+    # True if function has a variable number of arguments
+    # example - @printf(ptr noundef, ...)
+    is_vararg: bool
 
     # function as global object
     global_object: GlobalObject
@@ -104,16 +108,18 @@ class Function:
         blocks: list[Block],
         attrs: list[Attrs],
         calling_convention: int,
+        is_vararg: bool,
         global_object: GlobalObject,
     ):
         self.value = value
         self.args = args
-        self.blocks = blocks
+        self.blocks = {block.value.val: block for block in blocks}
         self.attrs = list(set(attrs) for attrs in attrs)
         self.calling_convention = CallingConv(calling_convention)
+        self.is_vararg = is_vararg
         self.global_object = global_object
 
     def __str__(self):
         args = ", ".join(map(str, self.args))
-        blocks = "\n".join(map(str, self.blocks))
+        blocks = "\n".join(map(str, self.blocks.values()))
         return f"define {self.value.ty} @{self.value.val}({args}) {{\n{blocks}\n}}"
