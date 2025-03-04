@@ -1,13 +1,12 @@
+from typing import Any, Callable, Iterable, NamedTuple, Literal, Union
 from .type import Type
 from .value import Value
+from .cconv import CallingConv
+from .support import attrs_to_dict
 
-Attr = tuple  # (str,) (str, Any) (str, Any, Any...)
-Attrs = dict[str, Any]
 
+Attrs = dict[str, Union[tuple, tuple[Any], tuple[Any, Any]]]
 
-from typing import Any, Callable, Iterable, NamedTuple, Literal
-
-class CallingConv: pass
 
 ParameterAttribute = Literal[
     "zeroext",
@@ -44,7 +43,7 @@ ParameterAttribute = Literal[
     "writable",
     "initializes",
     "dead_on_unwind",
-    "range"
+    "range",
 ]
 
 FunctionAttribute = Literal[
@@ -122,22 +121,19 @@ FunctionAttribute = Literal[
     "mustprogress",
     "warn-stack-size",
     "vscale_range",
-    "nooutline"
+    "nooutline",
 ]
 
-CallSiteAttribute = Literal[
-    "vector-function-abi-variant",
-    "preallocated"
-]
+CallSiteAttribute = Literal["vector-function-abi-variant", "preallocated"]
 
 GlobalAttributes = Literal[
     "no_sanitize_address",
     "no_sanitize_hwaddress",
     "sanitize_memtag",
-    "sanitize_address_dyninit"
+    "sanitize_address_dyninit",
 ]
 
-
+# fmt: off
 class Ret(NamedTuple):
     """
     
@@ -1202,13 +1198,13 @@ class ICmp(NamedTuple):
     based on comparison of its two integer,
     integer vector, pointer, or pointer vector operands.
 
-    :param result: converted value
-    :type result: Value
     :param cond: the condition code indicating the kind of comparison to perform, one of {
         'eq', 'ne', 'ugt', 'uge', 'ult',
         'ule', 'sgt', 'sge', 'slt', 'sle',
         }
     :type cond: str
+    :param result: converted value
+    :type result: Value
     :param arg0: first operand to compare
     :type arg0: Value
     :param arg1: second operand to compare
@@ -1220,15 +1216,18 @@ class ICmp(NamedTuple):
     
         <result> = icmp [samesign] <cond> <ty> <op1>, <op2>   ; yields i1 or <N x i1>:result
         ICmp(
-            Value(result, IntegerType(1) or VectorType(N, IntegerType(1))),
             cond,
+            Value(result, IntegerType(1) or VectorType(N, IntegerType(1))),
             Value(op1, ty),
             Value(op2, ty),
             samesign?
         )
+    
+    .. note::
+        is_samesign is not supported in LLVM <= 19, it's for the future version
     """
-    result: Value
     cond: str
+    result: Value
     arg0: Value
     arg1: Value
     is_samesign: bool = False
@@ -1247,13 +1246,13 @@ class FCmp(NamedTuple):
     then the result type is a vector of boolean with the same number of elements
     as the operands being compared.
 
-    :param result: converted value
-    :type result: Value
     :param cond: the condition code indicating the kind of comparison to perform, one of {
         'eq', 'ne', 'ugt', 'uge', 'ult',
         'ule', 'sgt', 'sge', 'slt', 'sle',
         }
     :type cond: str
+    :param result: converted value
+    :type result: Value
     :param arg0: first operand to compare
     :type arg0: Value
     :param arg1: second operand to compare
@@ -1265,15 +1264,15 @@ class FCmp(NamedTuple):
     
         <result> = icmp [fast-math flags]* <cond> <ty> <op1>, <op2>   ; yields i1 or <N x i1>:result
         ICmp(
-            Value(result, IntegerType(1) or VectorType(N, IntegerType(1))),
             cond,
+            Value(result, IntegerType(1) or VectorType(N, IntegerType(1))),
             Value(op1, ty),
             Value(op2, ty),
             {*fast-math flags}
         )
     """
-    result: Value
     cond: str
+    result: Value
     arg0: Value
     arg1: Value
     fast_math_flags: frozenset[str] = frozenset()
@@ -1564,34 +1563,83 @@ class CleanupPad(NamedTuple):
     parent: Value
     args: list[Value]
 
+# fmt: on
+
+Instruction = (
+    Ret
+    | Br
+    | Switch
+    | IndirectBr
+    | Invoke
+    | Resume
+    | CallBr
+    | CatchSwitch
+    | CatchRet
+    | CleanupPad
+    | Unreacheble
+    | UnaryOp
+    | BinOp
+    | ExtractElement
+    | InsertElement
+    | ShuffleVector
+    | ExtractValue
+    | InsertValue
+    | Alloca
+    | Load
+    | Store
+    | Fence
+    | CmpXchg
+    | AtomicRmw
+    | GetElementPtr
+    | Conversion
+    | ICmp
+    | FCmp
+    | Phi
+    | Select
+    | Freeze
+    | Call
+    | VaArg
+    | LangingPad
+    | CatchPad
+    | CleanupPad
+)
 
 Constructor = Callable[
     [
-        list[Value], # operands
-        Value, # Value
-        str, # opcode name
-        tuple, # additional data
-        Any, # call attributes
-        Any, # attributes
+        list[Value],  # operands
+        Value,  # Value
+        str,  # opcode name
+        tuple,  # additional data
+        Any,  # attributes
     ],
-    Iterable
+    Iterable,
 ]
 
-_binop_constructor = lambda operands, value, opcode, _, _, attrs: (
-    opcode, value, *operands, attrs['fmf'],
-    'nuw' in attrs,
-    'nsw' in attrs,
-    'exact' in attrs,
-    'disjoint' in attrs
+_binop_constructor = lambda operands, value, opcode, _, attrs: (
+    opcode,
+    value,
+    *operands,
+    frozenset(attrs.get("fmf", [])),
+    "nuw" in attrs,
+    "nsw" in attrs,
+    "exact" in attrs,
+    "disjoint" in attrs,
+)
+
+_conversion_constructor = lambda operands, value, opcode, _, attrs: (
+    opcode,
+    value,
+    operands[0],
+    frozenset(attrs.get("fmf", [])),
+    "nuw" in attrs,
+    "nsw" in attrs,
 )
 
 _constructors: list[tuple[Any, Constructor]] = [
     # 1
     (
         Ret,
-        lambda operands, *_: (
-            operands if len(operands) != 0 else (None,)
-        ),
+        lambda operands, *_: (operands if len(operands) != 0 else (None,)),
     ),
     # 2
     (
@@ -1617,14 +1665,14 @@ _constructors: list[tuple[Any, Constructor]] = [
     # 5
     (
         Invoke,
-        lambda operands, value, _, additional, call_attrs, *_: (
+        lambda operands, value, unused, additional, *_: (
             value,
             operands[-1],
             operands[:-3],
             operands[-3],
             operands[-2],
-            additional[0],
-            call_attrs,
+            CallingConv(additional[0]),
+            attrs_to_dict(additional[1]),
         ),
     ),
     # 6
@@ -1644,7 +1692,7 @@ _constructors: list[tuple[Any, Constructor]] = [
     # 10
     (
         CatchSwitch,
-        lambda operands, value, _, additional, *_: (
+        lambda operands, value, unused, additional, *_: (
             (value, operands[0], operands[2:], operands[1])
             if additional[0]
             else (value, operands[0], operands[1:], None)
@@ -1653,18 +1701,26 @@ _constructors: list[tuple[Any, Constructor]] = [
     # 11
     (
         CallBr,
-        lambda operands, value, _, additional, call_attrs: (
+        lambda operands, value, unused, additional, *_: (
             value,
             operands[-1],
-            operands[: -additional[1] - 2],
-            operands[-additional[1] - 2],
-            operands[-additional[1] - 1 : -1],
-            additional[0],
-            call_attrs
+            operands[: -additional[2] - 2],
+            operands[-additional[2] - 2],
+            operands[-additional[2] - 1 : -1],
+            CallingConv(additional[0]),
+            attrs_to_dict(additional[1]),
         ),
     ),
     # unary, 12
-    (UnaryOp, lambda operands, value, opcode, _, _, attrs: (opcode, value, operands[0], attrs['fmf'])),
+    (
+        UnaryOp,
+        lambda operands, value, opcode, unused, attrs: (
+            opcode,
+            value,
+            operands[0],
+            frozenset(attrs.get("fmf", [])),
+        ),
+    ),
     # binary, 13
     (BinOp, _binop_constructor),
     (BinOp, _binop_constructor),
@@ -1686,125 +1742,197 @@ _constructors: list[tuple[Any, Constructor]] = [
     (BinOp, _binop_constructor),
     (BinOp, _binop_constructor),
     # memory, 31
-    (Alloca, lambda operands, value, _, additional, _, attrs: (
-            value, additional[0], operands[0],
-            attrs.get('align', 0),
-            'inalloca' in attrs
-        )
+    (
+        Alloca,
+        lambda operands, value, unused, additional, attrs: (
+            value,
+            additional[0],
+            operands[0],
+            attrs.get("align", 0),
+            "inalloca" in attrs,
+        ),
     ),
-    (Load, lambda operands, value, _, _, _, attrs: (
+    (
+        Load,
+        lambda operands, value, unused, unused1, attrs: (
             value,
             operands[0],
-            attrs.get('align', 0),
-            'volatile' in attrs,
-            'atomic' in attrs,
-            attrs.get('ordering', 'notatomic'),
-            attrs.get('syncscope', 'notatomic')
-        )
+            attrs.get("align", 0),
+            "volatile" in attrs,
+            "atomic" in attrs,
+            attrs.get("ordering", "notatomic"),
+            attrs.get("syncscope", "notatomic"),
+        ),
     ),
-    (Store, lambda operands, _, _, _, _, attrs: (
+    (
+        Store,
+        lambda operands, unused, unused1, unused2, attrs: (
             *operands,
-            attrs.get('align', 0),
-            'volatile' in attrs,
-            'atomic' in attrs,
-            attrs.get('ordering', 'notatomic'),
-            attrs.get('syncscope', 'notatomic')
-        )
+            attrs.get("align", 0),
+            "volatile" in attrs,
+            "atomic" in attrs,
+            attrs.get("ordering", "notatomic"),
+            attrs.get("syncscope", "notatomic"),
+        ),
     ),
     (
         GetElementPtr,
-        lambda operands, value, _, additional, _, attrs: (
+        lambda operands, value, unused, additional, attrs: (
             value,
             additional[1],
             operands[0],
             operands[1:],
             additional[0],
-            'nuw' in attrs,
-            'nusw' in attrs,
-            'inbounds' in attrs,
-            attrs.get('inrange', None)
-        )
+            "nuw" in attrs,
+            "nusw" in attrs,
+            "inbounds" in attrs,
+            attrs.get("inrange", None),
+        ),
     ),
-    (Fence, lambda _, _, _, _, _, attrs: (
-            attrs.get('ordering', 'notatomic'),
-            attrs.get('syncscope', 'notatomic')
-        )
+    (
+        Fence,
+        lambda unused, unused1, unused2, unused3, attrs: (
+            attrs.get("ordering", "notatomic"),
+            attrs.get("syncscope", "notatomic"),
+        ),
     ),
-    (CmpXchg, lambda operands, value, _, additional, _, attrs: (
+    (
+        CmpXchg,
+        lambda operands, value, unused, additional, attrs: (
             value,
             *operands,
             *additional,
-            attrs.get('align', 0),
-            'weak' in attrs,
-            'volatile' in attrs,
-            attrs.get('syncscope', 'notatomic')
-        )
+            attrs.get("align", 0),
+            "weak" in attrs,
+            "volatile" in attrs,
+            attrs.get("syncscope", "notatomic"),
+        ),
     ),
-    (AtomicRmw, lambda operands, value, _, additional, _, attrs: (
-            additional[0], value, *operands,
-            
-        )
+    (
+        AtomicRmw,
+        lambda operands, value, unused, additional, attrs: (
+            additional[0],
+            value,
+            *operands,
+            attrs.get("ordering", "notatomic"),
+            attrs.get("align", 0),
+            "volatile" in attrs,
+            attrs.get("syncscope", "notatomic"),
+        ),
     ),
     # conversion, 38
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
-    (Conversion, lambda operands, additional, callattrs: operands),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
+    (Conversion, _conversion_constructor),
     # pads, 51
     (
         CleanupPad,
-        lambda operands, additional, callattrs: (operands[-1], operands[:-1]),
+        lambda operands, value, *_: (value, operands[-1], operands[:-1]),
     ),
     (
         CatchPad,
-        lambda operands, additional, callattrs: (operands[-1], operands[:-1]),
+        lambda operands, value, *_: (value, operands[-1], operands[:-1]),
     ),
     # other, 53
-    (ICmp, lambda operands, additional, callattrs: (additional[0], *operands)),
-    (FCmp, lambda operands, additional, callattrs: (additional[0], *operands)),
+    (
+        ICmp,
+        lambda operands, value, unused, additional, attrs: (
+            additional[0],
+            value,
+            *operands,
+            "samesign" in attrs,
+        ),
+    ),
+    (
+        FCmp,
+        lambda operands, value, unused, additional, attrs: (
+            additional[0],
+            value,
+            *operands,
+            frozenset(attrs.get("fmf", [])),
+        ),
+    ),
     (
         Phi,
-        lambda operands, additional, callattrs: (list(zip(operands, additional[0])),),
+        lambda operands, value, unused, additional, attrs: (
+            value,
+            list(zip(operands, additional[0])),
+            frozenset(attrs.get("fmf", [])),
+        ),
     ),
     (
         Call,
-        lambda operands, additional, callattrs: (
-            callattrs,
+        lambda operands, value, unused, additional, attrs: (
+            value,
             operands[-1],
             operands[:-1],
+            CallingConv(additional[0]),
+            attrs_to_dict(additional[1]),
+            attrs.get("tailkind", None),
+            frozenset(attrs.get("fmf", [])),
         ),
     ),
-    (Select, lambda operands, additional, callattrs: operands),
+    (
+        Select,
+        lambda operands, value, unused, additional, attrs: (
+            value,
+            *operands,
+            frozenset(attrs.get("fmf", [])),
+        ),
+    ),
     # user ops, 58
-    (UserInstructionContainer, lambda operands, additional, callattrs: (operands,)),
-    (UserInstructionContainer, lambda operands, additional, callattrs: (operands,)),
+    (NotImplemented, lambda *_: []),
+    (NotImplemented, lambda *_: []),
     # 60
-    (VaArg, lambda operands, additional, callattrs: operands),
+    (VaArg, lambda operands, value, *_: (value, *operands)),
     # vector, 61
-    (ExtractElement, lambda operands, additional, callattrs: operands),
-    (InsertElement, lambda operands, additional, callattrs: operands),
-    (ShuffleVector, lambda operands, additional, callattrs: (*operands, additional[0])),
+    (ExtractElement, lambda operands, value, *_: (value, *operands)),
+    (InsertElement, lambda operands, value, *_: (value, *operands)),
+    (
+        ShuffleVector,
+        lambda operands, value, unused, additional, *_: (
+            value,
+            *operands,
+            additional[0],
+        ),
+    ),
     # aggregate, 64
-    (ExtractValue, lambda operands, additional, callattrs: (*operands, additional[0])),
-    (InsertValue, lambda operands, additional, callattrs: (*operands, additional[0])),
+    (
+        ExtractValue,
+        lambda operands, value, unused, additional, *_: (
+            value,
+            operands[0],
+            additional[0],
+        ),
+    ),
+    (
+        InsertValue,
+        lambda operands, value, unused, additional, *_: (
+            value,
+            *operands,
+            additional[0],
+        ),
+    ),
     (
         LangingPad,
-        lambda operands, additional, callattrs: (
+        lambda operands, value, unused, additional, *_: (
+            value,
             additional[0],
             additional[1],
             operands,
         ),
     ),
-    (Freeze, lambda operands, additional, callattrs: operands),
+    (Freeze, lambda operands, value, unused, additional, *_: (value, operands[0])),
 ]
 
 
@@ -1814,13 +1942,10 @@ def _create_instruction(
     operands: list[Value],
     additional: tuple,
     attributes: list[tuple],
-    call_attributes: Any,
     value: Value,
 ):
-    print(opcode_name)
-    attributes = {attr: tuple(values) for attr, *values in attributes}
+    attributes_dict = attrs_to_dict(attributes)
     constructor, make_params = _constructors[opcode - 1]
-    params = make_params(operands, additional, call_attributes)
-    r = constructor(attributes, value, opcode_name, *params)
-    print("instruction created")
+    params = make_params(operands, value, opcode_name, additional, attributes_dict)
+    r = constructor(*params)
     return r

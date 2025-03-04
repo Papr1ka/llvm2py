@@ -39,21 +39,21 @@ namespace llvm2py {
     {
         switch (opcode)
         {
-        case Instruction::FNeg:
-        case Instruction::FAdd:
-        case Instruction::FSub:
-        case Instruction::FMul:
-        case Instruction::FDiv:
-        case Instruction::FRem:
-        case Instruction::FPTrunc:
-        case Instruction::FPExt:
-        case Instruction::FCmp:
-        case Instruction::PHI:
-        case Instruction::Select:
-        case Instruction::Call:
-            return true;
-        default:
-            return false;
+            case Instruction::FNeg:
+            case Instruction::FAdd:
+            case Instruction::FSub:
+            case Instruction::FMul:
+            case Instruction::FDiv:
+            case Instruction::FRem:
+            case Instruction::FPTrunc:
+            case Instruction::FPExt:
+            case Instruction::FCmp:
+            case Instruction::PHI:
+            case Instruction::Select:
+            case Instruction::Call:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -61,15 +61,15 @@ namespace llvm2py {
     {
         switch (opcode)
         {
-        case Instruction::GetElementPtr:
-        case Instruction::Add:
-        case Instruction::Sub:
-        case Instruction::Mul:
-        case Instruction::Shl:
-        case Instruction::Trunc:
-            return true;
-        default:
-            return false;
+            case Instruction::GetElementPtr:
+            case Instruction::Add:
+            case Instruction::Sub:
+            case Instruction::Mul:
+            case Instruction::Shl:
+            case Instruction::Trunc:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -77,13 +77,13 @@ namespace llvm2py {
     {
         switch (opcode)
         {
-        case Instruction::UDiv:
-        case Instruction::SDiv:
-        case Instruction::LShr:
-        case Instruction::AShr:
-            return true;
-        default:
-            return false;
+            case Instruction::UDiv:
+            case Instruction::SDiv:
+            case Instruction::LShr:
+            case Instruction::AShr:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -91,20 +91,50 @@ namespace llvm2py {
     {
         switch (ordering)
         {
-        case AtomicOrdering::Unordered:
-            return py::str("unordered");
-        case AtomicOrdering::Monotonic:
-            return py::str("monotonic");
-        case AtomicOrdering::Acquire:
-            return py::str("acquire");
-        case AtomicOrdering::Release:
-            return py::str("release");
-        case AtomicOrdering::AcquireRelease:
-            return py::str("acrelease");
-        case AtomicOrdering::SequentiallyConsistent:
-            return py::str("seqconsistent");
-        default:
-            return py::str("notatomic");
+            case AtomicOrdering::Unordered:
+                return py::str("unordered");
+            case AtomicOrdering::Monotonic:
+                return py::str("monotonic");
+            case AtomicOrdering::Acquire:
+                return py::str("acquire");
+            case AtomicOrdering::Release:
+                return py::str("release");
+            case AtomicOrdering::AcquireRelease:
+                return py::str("acrelease");
+            case AtomicOrdering::SequentiallyConsistent:
+                return py::str("seqconsistent");
+            default:
+                return py::str("notatomic");
+        }
+    }
+
+    py::object syncscopeToStr(const SyncScope::ID scopeID)
+    {
+        switch (scopeID)
+        {
+            case SyncScope::SingleThread:
+                return py::str("SingleThread");
+            case SyncScope::System:
+                return py::str("System");
+            default:
+                return py::str("New unsupported SyncScope, report if you see it");
+        }
+    }
+
+    py::object tailkindToStr(const CallInst::TailCallKind kind)
+    {
+        switch (kind)
+        {
+            case CallInst::TailCallKind::TCK_None:
+                return py::none();
+            case CallInst::TailCallKind::TCK_MustTail:
+                return py::str("musttail");
+            case CallInst::TailCallKind::TCK_Tail:
+                return py::str("tail");
+            case CallInst::TailCallKind::TCK_NoTail:
+                return py::str("notail");
+            default:
+                return py::str("New unsupported TailCallKind, report if you see it");
         }
     }
 
@@ -379,6 +409,7 @@ namespace llvm2py {
                 CallBrInst* instr = (CallBrInst*)(&instruction);
                 return py::make_tuple(
                     py::int_((int) instr->getCallingConv()),
+                    handleAttributeList(instr->getAttributes(), PT),
                     py::int_(instr->getNumIndirectDests())
                 );
             }
@@ -386,7 +417,10 @@ namespace llvm2py {
             case Instruction::Call:
             {
                 CallBase* instr = (CallBase*)(&instruction);
-                return py::make_tuple(py::int_((int) instr->getCallingConv()));
+                return py::make_tuple(
+                    py::int_((int) instr->getCallingConv()),
+                    handleAttributeList(instr->getAttributes(), PT)
+                );
             }
 
             case Instruction::CatchSwitch:
@@ -398,7 +432,7 @@ namespace llvm2py {
             {
                 ExtractValueInst* instr = (ExtractValueInst*)(&instruction);
                 std::vector<py::object> arr;
-                ArrayRef indices = instr->getIndices();
+                ArrayRef<unsigned> indices = instr->getIndices();
                 arr.reserve(indices.size());
                 for (unsigned i : indices)
                 {
@@ -410,7 +444,7 @@ namespace llvm2py {
             {
                 InsertValueInst* instr = (InsertValueInst*)(&instruction);
                 std::vector<py::object> arr;
-                ArrayRef indices = instr->getIndices();
+                ArrayRef<unsigned> indices = instr->getIndices();
                 arr.reserve(indices.size());
                 for (unsigned i : indices)
                 {
@@ -501,24 +535,29 @@ namespace llvm2py {
         if (!supportsFastMathFlags(instruction.getOpcode())) return;
 
         const FastMathFlags fastFlags = instruction.getFastMathFlags();
-        if (fastFlags.allowReassoc()) flags->push_back(py::make_tuple(py::str("reassoc")));
-        if (fastFlags.noNaNs()) flags->push_back(py::make_tuple(py::str("nnan")));
-        if (fastFlags.noInfs()) flags->push_back(py::make_tuple(py::str("ninf")));
-        if (fastFlags.noSignedZeros()) flags->push_back(py::make_tuple(py::str("nsz")));
-        if (fastFlags.allowReciprocal()) flags->push_back(py::make_tuple(py::str("recip")));
-        if (fastFlags.allowContract()) flags->push_back(py::make_tuple(py::str("contract")));
-        if (fastFlags.approxFunc()) flags->push_back(py::make_tuple(py::str("approx-func")));
+        if (fastFlags.allowReassoc()) flags->push_back(py::str("reassoc"));
+        if (fastFlags.noNaNs()) flags->push_back(py::str("nnan"));
+        if (fastFlags.noInfs()) flags->push_back(py::str("ninf"));
+        if (fastFlags.noSignedZeros()) flags->push_back(py::str("nsz"));
+        if (fastFlags.allowReciprocal()) flags->push_back(py::str("recip"));
+        if (fastFlags.allowContract()) flags->push_back(py::str("contract"));
+        if (fastFlags.approxFunc()) flags->push_back(py::str("approx-func"));
     }
 
     py::object extractInstructionFlags(const Instruction &instruction)
     {
         std::vector<py::object> flags;
-        std::vector<py::object> fastMathFlags;
-        extractFastMathFlags(instruction, &fastMathFlags);
-        flags.push_back(py::make_tuple(py::str("fmf"), fastMathFlags));
-        
         unsigned opcode = instruction.getOpcode();
+
+        // fast-math flags
+        if (supportsFastMathFlags(opcode))
+        {
+            std::vector<py::object> fastMathFlags;
+            extractFastMathFlags(instruction, &fastMathFlags);
+            flags.push_back(py::make_tuple(py::str("fmf"), fastMathFlags));
+        }
         
+        // nuw or nsw
         if (supportsNUWandNSW(opcode))
         {
             if (opcode == Instruction::GetElementPtr && instruction.hasNoUnsignedWrap() && instruction.hasNoSignedWrap())
@@ -529,117 +568,103 @@ namespace llvm2py {
             else if (instruction.hasNoSignedWrap()) flags.push_back(py::make_tuple(py::str("nsw")));
         }
         
+        // exact
         if (supportsExact(opcode) && instruction.isExact()) flags.push_back(py::make_tuple(py::str("exact")));
 
-        if (auto* instr = dyn_cast<LoadInst>(&instruction))
+        if (auto *instr = dyn_cast<LoadInst>(&instruction))
         {
+            // volatile
             if (instr->isVolatile()) flags.push_back(py::make_tuple(py::str("volatile")));
-            if (instr->isAtomic()) flags.push_back(py::make_tuple(py::str("atomic")));
-            
+            // align
+            int align = instr->getAlign().value();
+            if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
+            // syncscope
+            SyncScope::ID scopeID = instr->getSyncScopeID();
+            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            // ordering
             AtomicOrdering ordering = instr->getOrdering();
-            flags.push_back(py::make_tuple(
-                py::str("ordering"),
-                orderingToStr(ordering)
-            ));
+            flags.push_back(py::make_tuple(py::str("ordering"), orderingToStr(ordering)));
+            // atomic
+            if (instr->isAtomic()) flags.push_back(py::make_tuple(py::str("atomic")));
         }
-        else if (auto* instr = dyn_cast<StoreInst>(&instruction))
+        else if (auto *instr = dyn_cast<StoreInst>(&instruction))
         {
+            // volatile
             if (instr->isVolatile()) flags.push_back(py::make_tuple(py::str("volatile")));
-            if (instr->isAtomic()) flags.push_back(py::make_tuple(py::str("atomic")));
+            // align
+            int align = instr->getAlign().value();
+            if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
+            // syncscope
+            SyncScope::ID scopeID = instr->getSyncScopeID();
+            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            // ordering
             AtomicOrdering ordering = instr->getOrdering();
-            flags.push_back(py::make_tuple(
-                py::str("ordering"),
-                orderingToStr(ordering)
-            ));
+            flags.push_back(py::make_tuple(py::str("ordering"), orderingToStr(ordering)));
+            // atomic
+            if (instr->isAtomic()) flags.push_back(py::make_tuple(py::str("atomic")));
         }
-        
-        switch (opcode)
+        else if (auto *instr = dyn_cast<AtomicCmpXchgInst>(&instruction))
         {
-            case Instruction::Load:
-            case Instruction::Store:
-            {
-                // instruction
-                uint64_t align = getLoadStoreAlignment((Value*)&instruction).value();
-                flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
-            }
-            case Instruction::Fence:
-            case Instruction::AtomicCmpXchg:
-            {
-                AtomicCmpXchgInst* instr = (AtomicCmpXchgInst*)(&instruction);
-                if (instr->isWeak()) flags.push_back(py::make_tuple(py::str("weak")));
-                if (instr->isVolatile()) flags.push_back(py::make_tuple(py::str("volatile")));
-            }
-            case Instruction::AtomicRMW:
-            {
-                std::optional<SyncScope::ID> id = getAtomicSyncScopeID(&instruction);
-                if (id.has_value())
-                {
-                    py::object scope = id.value() ? py::str("System") : py::str("SingleThread");
-                    flags.push_back(py::make_tuple(py::str("syncscope"), scope));
-                }
-                break;
-            }
-            case Instruction::Or:
-            {
-                if (auto* instr = dyn_cast<PossiblyDisjointInst>(&instruction))
-                {
-                    if (instr->isDisjoint())
-                    {
-                        flags.push_back(py::make_tuple(py::str("disjoint")));
-                    }
-                }
-            }
-            default:
-                break;
+            // volatile
+            if (instr->isVolatile()) flags.push_back(py::make_tuple(py::str("volatile")));
+            // align
+            int align = instr->getAlign().value();
+            if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
+            // syncscope
+            SyncScope::ID scopeID = instr->getSyncScopeID();
+            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            // weak
+            if (instr->isWeak()) flags.push_back(py::make_tuple(py::str("weak")));
         }
-
-        if (auto* instr = dyn_cast<GetElementPtrInst>(&instruction))
+        else if (auto *instr = dyn_cast<AtomicRMWInst>(&instruction))
         {
+            // volatile
+            if (instr->isVolatile()) flags.push_back(py::make_tuple(py::str("volatile")));
+            // align
+            int align = instr->getAlign().value();
+            if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
+            // syncscope
+            SyncScope::ID scopeID = instr->getSyncScopeID();
+            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            // ordering
+            AtomicOrdering ordering = instr->getOrdering();
+            flags.push_back(py::make_tuple(py::str("ordering"), orderingToStr(ordering)));
+        }
+        else if (auto *instr = dyn_cast<FenceInst>(&instruction))
+        {
+            // syncscope
+            SyncScope::ID scopeID = instr->getSyncScopeID();
+            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            // ordering
+            AtomicOrdering ordering = instr->getOrdering();
+            flags.push_back(py::make_tuple(py::str("ordering"), orderingToStr(ordering)));
+        }
+        else if (auto* instr = dyn_cast<PossiblyDisjointInst>(&instruction))
+        {
+            // disjoint
+            if (instr->isDisjoint()) flags.push_back(py::make_tuple(py::str("disjoint")));
+        }
+        else if (auto* instr = dyn_cast<GetElementPtrInst>(&instruction))
+        {
+            // inbounds
             if (instr->isInBounds()) flags.push_back(py::make_tuple(py::str("inbounds")));
         }
-
-        if (auto* instr = dyn_cast<CallInst>(&instruction))
+        else if (auto* instr = dyn_cast<CallInst>(&instruction))
         {
+            // tailcall kind
             CallInst::TailCallKind kind = instr->getTailCallKind();
-            switch (kind)
-            {
-            case CallInst::TailCallKind::TCK_None:
-                break;
-            case CallInst::TailCallKind::TCK_MustTail:
-                flags.push_back(py::make_tuple(py::str("musttail")));
-                break;
-            case CallInst::TailCallKind::TCK_Tail:
-                flags.push_back(py::make_tuple(py::str("tail")));
-                break;
-            case CallInst::TailCallKind::TCK_NoTail:
-                flags.push_back(py::make_tuple(py::str("notail")));
-                break;
-            default:
-                break;
-            }
+            flags.push_back(py::make_tuple(py::str("tailkind"), tailkindToStr(kind)));
         }
-
-        if (auto* instr = dyn_cast<AllocaInst>(&instruction))
+        else if (auto* instr = dyn_cast<AllocaInst>(&instruction))
         {
+            // align
             int align = instr->getAlign().value();
             if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
 
-            for (const Use& operand : instr->operands())
-            {
-                Argument* arg = (Argument*) operand.get();
-                if (arg->hasInAllocaAttr())
-                {
-                    flags.push_back(py::make_tuple(py::str("inalloca")));
-                    break;
-                }
-            }
-            int addrSpace = instr->getAddressSpace();
-            if (addrSpace != 0)
-            {
-                flags.push_back(py::make_tuple(py::str("addrspace"), py::int_(addrSpace)));
-            }
+            // inalloca
+            if (instr->isUsedWithInAlloca()) flags.push_back(py::make_tuple(py::str("inalloca")));
         }
-        return py::set(py::cast(flags));
+        return py::list(py::cast(flags));
     }
 
     py::object handleAttributeList(AttributeList attributes, const PythonTypes &PT)
@@ -678,14 +703,12 @@ namespace llvm2py {
                 else if (Attribute::isEnumAttrKind(kind))
                 {
                     localAttrs.push_back(py::make_tuple(
-                        py::int_((int)kind),
                         py::str(attr.getNameFromAttrKind(kind).str())
                     ));
                 }
                 else if (Attribute::isIntAttrKind(kind))
                 {
                     localAttrs.push_back(py::make_tuple(
-                        py::int_((int)kind),
                         py::str(attr.getNameFromAttrKind(kind).str()),
                         py::int_(attr.getValueAsInt())
                     ));
@@ -693,7 +716,6 @@ namespace llvm2py {
                 else if (Attribute::isTypeAttrKind(kind))
                 {
                     localAttrs.push_back(py::make_tuple(
-                        py::int_((int)kind),
                         py::str(attr.getNameFromAttrKind(kind).str()),
                         handleType(attr.getValueAsType(), PT)
                     ));
@@ -701,7 +723,6 @@ namespace llvm2py {
                 else
                 {
                     localAttrs.push_back(py::make_tuple(
-                        py::int_((int)kind),
                         py::str(attr.getNameFromAttrKind(kind).str()),
                         py::str(attr.getValueAsString().str())
                     ));
@@ -726,23 +747,12 @@ namespace llvm2py {
 
         py::object flags = extractInstructionFlags(instruction);
 
-        py::object callBaseAttrs;
-        if (auto* instr = dyn_cast<CallBase>(&instruction))
-        {
-            callBaseAttrs = handleAttributeList(instr->getAttributes(), PT);
-        }
-        else
-        {
-            callBaseAttrs = py::none();
-        }
-
         return PT.createInstructionFactory(
                 py::int_(instruction.getOpcode()),
                 py::str(instruction.getOpcodeName()),
                 py::list(py::cast(operands)),
                 additional,
                 flags,
-                callBaseAttrs,
                 handleValue(instruction, PT)
             );
     }

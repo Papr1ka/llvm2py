@@ -26,6 +26,8 @@ namespace llvm2py {
 
     struct PythonTypes;
     py::object handleInstruction(const Instruction &instruction, const PythonTypes &PT);
+
+    py::object handleAttributeList(AttributeList attributes, const PythonTypes &PT);
 }
 
 #endif //LLVM2PY_MODULE_H

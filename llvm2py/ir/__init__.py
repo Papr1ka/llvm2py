@@ -7,4 +7,4 @@ from .instruction import *
 from .instruction import _create_instruction
 from .global_variable import GlobalVariable
 from .global_object import GlobalObject
-from . import tools
+from . import support
