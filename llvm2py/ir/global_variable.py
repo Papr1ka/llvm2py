@@ -4,6 +4,18 @@ from llvm2py.ir.global_object import GlobalObject
 from .value import Value
 
 
+class Ret(NamedTuple):
+    """Ret instruction
+
+    llvm specification: https://llvm.org/docs/LangRef.html#ret-instruction
+
+    :param value: returned value
+    :type value: :class: `Value`
+    """
+
+    value: Value
+
+
 class GlobalVariable(NamedTuple):
     # https://llvm.org/docs/LangRef.html#global-variables
 

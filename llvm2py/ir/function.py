@@ -111,13 +111,19 @@ class Function:
         is_vararg: bool,
         global_object: GlobalObject,
     ):
+        print("init called")
         self.value = value
         self.args = args
+        print("creating blocks...")
         self.blocks = {block.value.val: block for block in blocks}
-        self.attrs = list(set(attrs) for attrs in attrs)
+        print("creating attrs...")
+        print(attrs)
+        self.attrs = list(list(attrs) for attrs in attrs)
+        print("created attrs...")
         self.calling_convention = CallingConv(calling_convention)
         self.is_vararg = is_vararg
         self.global_object = global_object
+        print(f"function {self.value.val} created")
 
     def __str__(self):
         args = ", ".join(map(str, self.args))

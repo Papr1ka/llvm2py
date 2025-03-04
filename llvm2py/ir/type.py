@@ -62,7 +62,7 @@ class TargetExtensionType(NamedTuple):
 class VectorType(NamedTuple):
     elem_count: int
     elem_ty: Type
-    is_scalable: bool
+    is_scalable: bool = False
 
     def __str__(self):
         if self.is_scalable:

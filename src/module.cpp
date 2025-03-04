@@ -87,6 +87,27 @@ namespace llvm2py {
         }
     }
 
+    py::object orderingToStr(const AtomicOrdering ordering)
+    {
+        switch (ordering)
+        {
+        case AtomicOrdering::Unordered:
+            return py::str("unordered");
+        case AtomicOrdering::Monotonic:
+            return py::str("monotonic");
+        case AtomicOrdering::Acquire:
+            return py::str("acquire");
+        case AtomicOrdering::Release:
+            return py::str("release");
+        case AtomicOrdering::AcquireRelease:
+            return py::str("acrelease");
+        case AtomicOrdering::SequentiallyConsistent:
+            return py::str("seqconsistent");
+        default:
+            return py::str("notatomic");
+        }
+    }
+
     py::object handleType(const Type *type, const PythonTypes &PT)
     {
         switch (type->getTypeID())
@@ -356,8 +377,18 @@ namespace llvm2py {
             case Instruction::CallBr:
             {
                 CallBrInst* instr = (CallBrInst*)(&instruction);
-                return py::make_tuple(py::int_(instr->getNumIndirectDests()));
+                return py::make_tuple(
+                    py::int_((int) instr->getCallingConv()),
+                    py::int_(instr->getNumIndirectDests())
+                );
             }
+            case Instruction::Invoke:
+            case Instruction::Call:
+            {
+                CallBase* instr = (CallBase*)(&instruction);
+                return py::make_tuple(py::int_((int) instr->getCallingConv()));
+            }
+
             case Instruction::CatchSwitch:
             {
                 CatchSwitchInst* instr = (CatchSwitchInst*)(&instruction);
@@ -416,7 +447,7 @@ namespace llvm2py {
                 std::vector<py::object> incomingBlocks;
                 for (const BasicBlock* block : instr->blocks())
                 {
-                    incomingBlocks.push_back(py::str(getNameOrAsOperand(block)));
+                    incomingBlocks.push_back(handleValue(*block, PT));
                 }
                 return py::make_tuple(py::list(py::cast(incomingBlocks)));
             }
@@ -452,6 +483,14 @@ namespace llvm2py {
                 }
                 return py::make_tuple(py::list(py::cast(arr)));
             }
+            case Instruction::AtomicCmpXchg:
+            {
+                AtomicCmpXchgInst* instr = (AtomicCmpXchgInst*)(&instruction);
+                return py::make_tuple(
+                    orderingToStr(instr->getSuccessOrdering()),
+                    orderingToStr(instr->getFailureOrdering())
+                );
+            }
             default:
                 return py::none();
         }
@@ -474,7 +513,10 @@ namespace llvm2py {
     py::object extractInstructionFlags(const Instruction &instruction)
     {
         std::vector<py::object> flags;
-        extractFastMathFlags(instruction, &flags);
+        std::vector<py::object> fastMathFlags;
+        extractFastMathFlags(instruction, &fastMathFlags);
+        flags.push_back(py::make_tuple(py::str("fmf"), fastMathFlags));
+        
         unsigned opcode = instruction.getOpcode();
         
         if (supportsNUWandNSW(opcode))
@@ -495,61 +537,23 @@ namespace llvm2py {
             if (instr->isAtomic()) flags.push_back(py::make_tuple(py::str("atomic")));
             
             AtomicOrdering ordering = instr->getOrdering();
-            switch (ordering)
-            {
-            case AtomicOrdering::Unordered:
-                flags.push_back(py::make_tuple(py::str("unordered")));
-                break;
-            case AtomicOrdering::Monotonic:
-                flags.push_back(py::make_tuple(py::str("monotonic")));
-                break;
-            case AtomicOrdering::Acquire:
-                flags.push_back(py::make_tuple(py::str("acquire")));
-                break;
-            case AtomicOrdering::Release:
-                flags.push_back(py::make_tuple(py::str("release")));
-                break;
-            case AtomicOrdering::AcquireRelease:
-                flags.push_back(py::make_tuple(py::str("acrelease")));
-                break;
-            case AtomicOrdering::SequentiallyConsistent:
-                flags.push_back(py::make_tuple(py::str("seqconsistent")));
-                break;
-            default:
-                break;
-            }
+            flags.push_back(py::make_tuple(
+                py::str("ordering"),
+                orderingToStr(ordering)
+            ));
         }
         else if (auto* instr = dyn_cast<StoreInst>(&instruction))
         {
             if (instr->isVolatile()) flags.push_back(py::make_tuple(py::str("volatile")));
             if (instr->isAtomic()) flags.push_back(py::make_tuple(py::str("atomic")));
             AtomicOrdering ordering = instr->getOrdering();
-            switch (ordering)
-            {
-            case AtomicOrdering::Unordered:
-                flags.push_back(py::make_tuple(py::str("unordered")));
-                break;
-            case AtomicOrdering::Monotonic:
-                flags.push_back(py::make_tuple(py::str("monotonic")));
-                break;
-            case AtomicOrdering::Acquire:
-                flags.push_back(py::make_tuple(py::str("acquire")));
-                break;
-            case AtomicOrdering::Release:
-                flags.push_back(py::make_tuple(py::str("release")));
-                break;
-            case AtomicOrdering::AcquireRelease:
-                flags.push_back(py::make_tuple(py::str("acrelease")));
-                break;
-            case AtomicOrdering::SequentiallyConsistent:
-                flags.push_back(py::make_tuple(py::str("seqconsistent")));
-                break;
-            default:
-                break;
-            }
+            flags.push_back(py::make_tuple(
+                py::str("ordering"),
+                orderingToStr(ordering)
+            ));
         }
         
-        switch (instruction.getOpcode())
+        switch (opcode)
         {
             case Instruction::Load:
             case Instruction::Store:
@@ -560,6 +564,11 @@ namespace llvm2py {
             }
             case Instruction::Fence:
             case Instruction::AtomicCmpXchg:
+            {
+                AtomicCmpXchgInst* instr = (AtomicCmpXchgInst*)(&instruction);
+                if (instr->isWeak()) flags.push_back(py::make_tuple(py::str("weak")));
+                if (instr->isVolatile()) flags.push_back(py::make_tuple(py::str("volatile")));
+            }
             case Instruction::AtomicRMW:
             {
                 std::optional<SyncScope::ID> id = getAtomicSyncScopeID(&instruction);
@@ -569,6 +578,16 @@ namespace llvm2py {
                     flags.push_back(py::make_tuple(py::str("syncscope"), scope));
                 }
                 break;
+            }
+            case Instruction::Or:
+            {
+                if (auto* instr = dyn_cast<PossiblyDisjointInst>(&instruction))
+                {
+                    if (instr->isDisjoint())
+                    {
+                        flags.push_back(py::make_tuple(py::str("disjoint")));
+                    }
+                }
             }
             default:
                 break;
@@ -631,6 +650,10 @@ namespace llvm2py {
             std::vector<py::object> localAttrs;
             for (const Attribute attr : attrs)
             {
+                if (!attr.isValid())
+                {
+                    continue;
+                }
                 Attribute::AttrKind kind = attr.getKindAsEnum();
                 if (kind == Attribute::AttrKind::VScaleRange)
                 {
@@ -652,22 +675,25 @@ namespace llvm2py {
                         ));
                     }
                 }
-                else if (attr.isEnumAttribute())
+                else if (Attribute::isEnumAttrKind(kind))
                 {
                     localAttrs.push_back(py::make_tuple(
+                        py::int_((int)kind),
                         py::str(attr.getNameFromAttrKind(kind).str())
                     ));
                 }
-                else if (attr.isIntAttribute())
+                else if (Attribute::isIntAttrKind(kind))
                 {
                     localAttrs.push_back(py::make_tuple(
+                        py::int_((int)kind),
                         py::str(attr.getNameFromAttrKind(kind).str()),
                         py::int_(attr.getValueAsInt())
                     ));
                 }
-                else if (attr.isTypeAttribute())
+                else if (Attribute::isTypeAttrKind(kind))
                 {
                     localAttrs.push_back(py::make_tuple(
+                        py::int_((int)kind),
                         py::str(attr.getNameFromAttrKind(kind).str()),
                         handleType(attr.getValueAsType(), PT)
                     ));
@@ -675,12 +701,13 @@ namespace llvm2py {
                 else
                 {
                     localAttrs.push_back(py::make_tuple(
+                        py::int_((int)kind),
                         py::str(attr.getNameFromAttrKind(kind).str()),
                         py::str(attr.getValueAsString().str())
                     ));
                 }
             }
-            allAttrs.push_back(py::set(py::cast(localAttrs)));
+            allAttrs.push_back(py::list(py::cast(localAttrs)));
         }
         return py::list(py::cast(allAttrs));
     }
