@@ -61,7 +61,6 @@ namespace llvm2py {
     {
         switch (opcode)
         {
-            case Instruction::GetElementPtr:
             case Instruction::Add:
             case Instruction::Sub:
             case Instruction::Mul:
@@ -84,40 +83,6 @@ namespace llvm2py {
                 return true;
             default:
                 return false;
-        }
-    }
-
-    py::object orderingToStr(const AtomicOrdering ordering)
-    {
-        switch (ordering)
-        {
-            case AtomicOrdering::Unordered:
-                return py::str("unordered");
-            case AtomicOrdering::Monotonic:
-                return py::str("monotonic");
-            case AtomicOrdering::Acquire:
-                return py::str("acquire");
-            case AtomicOrdering::Release:
-                return py::str("release");
-            case AtomicOrdering::AcquireRelease:
-                return py::str("acrelease");
-            case AtomicOrdering::SequentiallyConsistent:
-                return py::str("seqconsistent");
-            default:
-                return py::str("notatomic");
-        }
-    }
-
-    py::object syncscopeToStr(const SyncScope::ID scopeID)
-    {
-        switch (scopeID)
-        {
-            case SyncScope::SingleThread:
-                return py::str("SingleThread");
-            case SyncScope::System:
-                return py::str("System");
-            default:
-                return py::str("New unsupported SyncScope, report if you see it");
         }
     }
 
@@ -291,7 +256,9 @@ namespace llvm2py {
             py::int_(alignment),
             py::int_((int ) globalObject.getLinkage()),
             py::int_((int) globalObject.getUnnamedAddr()),
-            py::int_((int) globalObject.getVisibility())
+            py::int_((int) globalObject.getVisibility()),
+            py::int_((int) globalObject.getThreadLocalMode()),
+            py::str(globalObject.getSection().str())
         );
     }
 
@@ -521,8 +488,8 @@ namespace llvm2py {
             {
                 AtomicCmpXchgInst* instr = (AtomicCmpXchgInst*)(&instruction);
                 return py::make_tuple(
-                    orderingToStr(instr->getSuccessOrdering()),
-                    orderingToStr(instr->getFailureOrdering())
+                    py::int_((int)instr->getSuccessOrdering()),
+                    py::int_((int)instr->getFailureOrdering())
                 );
             }
             default:
@@ -539,9 +506,9 @@ namespace llvm2py {
         if (fastFlags.noNaNs()) flags->push_back(py::str("nnan"));
         if (fastFlags.noInfs()) flags->push_back(py::str("ninf"));
         if (fastFlags.noSignedZeros()) flags->push_back(py::str("nsz"));
-        if (fastFlags.allowReciprocal()) flags->push_back(py::str("recip"));
+        if (fastFlags.allowReciprocal()) flags->push_back(py::str("arcp"));
         if (fastFlags.allowContract()) flags->push_back(py::str("contract"));
-        if (fastFlags.approxFunc()) flags->push_back(py::str("approx-func"));
+        if (fastFlags.approxFunc()) flags->push_back(py::str("afn"));
     }
 
     py::object extractInstructionFlags(const Instruction &instruction)
@@ -560,12 +527,8 @@ namespace llvm2py {
         // nuw or nsw
         if (supportsNUWandNSW(opcode))
         {
-            if (opcode == Instruction::GetElementPtr && instruction.hasNoUnsignedWrap() && instruction.hasNoSignedWrap())
-            {
-                flags.push_back(py::make_tuple(py::str("nusw")));
-            }
-            else if (instruction.hasNoUnsignedWrap()) flags.push_back(py::make_tuple(py::str("nuw")));
-            else if (instruction.hasNoSignedWrap()) flags.push_back(py::make_tuple(py::str("nsw")));
+            if (instruction.hasNoUnsignedWrap()) flags.push_back(py::make_tuple(py::str("nuw")));
+            if (instruction.hasNoSignedWrap()) flags.push_back(py::make_tuple(py::str("nsw")));
         }
         
         // exact
@@ -580,10 +543,10 @@ namespace llvm2py {
             if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
             // syncscope
             SyncScope::ID scopeID = instr->getSyncScopeID();
-            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            flags.push_back(py::make_tuple(py::str("syncscope"), py::int_((int)scopeID)));
             // ordering
             AtomicOrdering ordering = instr->getOrdering();
-            flags.push_back(py::make_tuple(py::str("ordering"), orderingToStr(ordering)));
+            flags.push_back(py::make_tuple(py::str("ordering"), py::int_((int)ordering)));
             // atomic
             if (instr->isAtomic()) flags.push_back(py::make_tuple(py::str("atomic")));
         }
@@ -596,10 +559,10 @@ namespace llvm2py {
             if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
             // syncscope
             SyncScope::ID scopeID = instr->getSyncScopeID();
-            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            flags.push_back(py::make_tuple(py::str("syncscope"), py::int_((int)scopeID)));
             // ordering
             AtomicOrdering ordering = instr->getOrdering();
-            flags.push_back(py::make_tuple(py::str("ordering"), orderingToStr(ordering)));
+            flags.push_back(py::make_tuple(py::str("ordering"), py::int_((int)ordering)));
             // atomic
             if (instr->isAtomic()) flags.push_back(py::make_tuple(py::str("atomic")));
         }
@@ -612,7 +575,7 @@ namespace llvm2py {
             if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
             // syncscope
             SyncScope::ID scopeID = instr->getSyncScopeID();
-            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            flags.push_back(py::make_tuple(py::str("syncscope"), py::int_((int)scopeID)));
             // weak
             if (instr->isWeak()) flags.push_back(py::make_tuple(py::str("weak")));
         }
@@ -625,19 +588,19 @@ namespace llvm2py {
             if (align != 0) flags.push_back(py::make_tuple(py::str("align"), py::int_(align)));
             // syncscope
             SyncScope::ID scopeID = instr->getSyncScopeID();
-            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            flags.push_back(py::make_tuple(py::str("syncscope"), py::int_((int)scopeID)));
             // ordering
             AtomicOrdering ordering = instr->getOrdering();
-            flags.push_back(py::make_tuple(py::str("ordering"), orderingToStr(ordering)));
+            flags.push_back(py::make_tuple(py::str("ordering"), py::int_((int)ordering)));
         }
         else if (auto *instr = dyn_cast<FenceInst>(&instruction))
         {
             // syncscope
             SyncScope::ID scopeID = instr->getSyncScopeID();
-            flags.push_back(py::make_tuple(py::str("syncscope"), syncscopeToStr(scopeID)));
+            flags.push_back(py::make_tuple(py::str("syncscope"), py::int_((int)scopeID)));
             // ordering
             AtomicOrdering ordering = instr->getOrdering();
-            flags.push_back(py::make_tuple(py::str("ordering"), orderingToStr(ordering)));
+            flags.push_back(py::make_tuple(py::str("ordering"), py::int_((int)ordering)));
         }
         else if (auto* instr = dyn_cast<PossiblyDisjointInst>(&instruction))
         {
@@ -667,68 +630,75 @@ namespace llvm2py {
         return py::list(py::cast(flags));
     }
 
-    py::object handleAttributeList(AttributeList attributes, const PythonTypes &PT)
+    py::object handleAttributeSet(const AttributeSet &attrs, const PythonTypes &PT)
     {
-        std::vector<py::object> allAttrs;
-        for (const AttributeSet attrs : attributes)
+        std::vector<py::object> localAttrs;
+        localAttrs.reserve(attrs.getNumAttributes());
+        for (const Attribute attr : attrs)
         {
-            std::vector<py::object> localAttrs;
-            for (const Attribute attr : attrs)
+            if (!attr.isValid())
             {
-                if (!attr.isValid())
-                {
-                    continue;
-                }
-                Attribute::AttrKind kind = attr.getKindAsEnum();
-                if (kind == Attribute::AttrKind::VScaleRange)
-                {
-                    unsigned min = attr.getVScaleRangeMin();
-                    std::optional<unsigned> max = attr.getVScaleRangeMax();
-                    if (max.has_value())
-                    {
-                        localAttrs.push_back(py::make_tuple(
-                            py::str(attr.getNameFromAttrKind(kind).str()),
-                            py::int_(min),
-                            py::int_(max.value())
-                        ));
-                    }
-                    else
-                    {
-                        localAttrs.push_back(py::make_tuple(
-                            py::str(attr.getNameFromAttrKind(kind).str()),
-                            py::int_(min)
-                        ));
-                    }
-                }
-                else if (Attribute::isEnumAttrKind(kind))
-                {
-                    localAttrs.push_back(py::make_tuple(
-                        py::str(attr.getNameFromAttrKind(kind).str())
-                    ));
-                }
-                else if (Attribute::isIntAttrKind(kind))
+                continue;
+            }
+            Attribute::AttrKind kind = attr.getKindAsEnum();
+            if (kind == Attribute::AttrKind::VScaleRange)
+            {
+                unsigned min = attr.getVScaleRangeMin();
+                std::optional<unsigned> max = attr.getVScaleRangeMax();
+                if (max.has_value())
                 {
                     localAttrs.push_back(py::make_tuple(
                         py::str(attr.getNameFromAttrKind(kind).str()),
-                        py::int_(attr.getValueAsInt())
-                    ));
-                }
-                else if (Attribute::isTypeAttrKind(kind))
-                {
-                    localAttrs.push_back(py::make_tuple(
-                        py::str(attr.getNameFromAttrKind(kind).str()),
-                        handleType(attr.getValueAsType(), PT)
+                        py::int_(min),
+                        py::int_(max.value())
                     ));
                 }
                 else
                 {
                     localAttrs.push_back(py::make_tuple(
                         py::str(attr.getNameFromAttrKind(kind).str()),
-                        py::str(attr.getValueAsString().str())
+                        py::int_(min)
                     ));
                 }
             }
-            allAttrs.push_back(py::list(py::cast(localAttrs)));
+            else if (Attribute::isEnumAttrKind(kind))
+            {
+                localAttrs.push_back(py::make_tuple(
+                    py::str(attr.getNameFromAttrKind(kind).str())
+                ));
+            }
+            else if (Attribute::isIntAttrKind(kind))
+            {
+                localAttrs.push_back(py::make_tuple(
+                    py::str(attr.getNameFromAttrKind(kind).str()),
+                    py::int_(attr.getValueAsInt())
+                ));
+            }
+            else if (Attribute::isTypeAttrKind(kind))
+            {
+                localAttrs.push_back(py::make_tuple(
+                    py::str(attr.getNameFromAttrKind(kind).str()),
+                    handleType(attr.getValueAsType(), PT)
+                ));
+            }
+            else
+            {
+                localAttrs.push_back(py::make_tuple(
+                    py::str(attr.getNameFromAttrKind(kind).str()),
+                    py::str(attr.getValueAsString().str())
+                ));
+            }
+        }
+        return py::list(py::cast(localAttrs));
+    }
+
+    py::object handleAttributeList(AttributeList attributes, const PythonTypes &PT)
+    {
+        std::vector<py::object> allAttrs;
+        for (const AttributeSet attrs : attributes)
+        {
+            py::object localAttrs = handleAttributeSet(attrs, PT);
+            allAttrs.push_back(localAttrs);
         }
         return py::list(py::cast(allAttrs));
     }
@@ -784,15 +754,7 @@ namespace llvm2py {
 
     py::object handleGlobalVariable(const GlobalVariable& var, const PythonTypes &PT)
     {
-        std::vector<py::object> attributes;
-        AttributeSet attributeSet = var.getAttributes();
-        attributes.reserve(attributeSet.getNumAttributes());
-
-        for (const Attribute &attribute: attributeSet)
-        {
-            py::object attributeObject = py::str(attribute.getAsString());
-            attributes.push_back(attributeObject);
-        }
+        py::object attributes = handleAttributeSet(var.getAttributes(), PT);
 
         py::object initializer;
         if (var.hasInitializer())
@@ -808,10 +770,10 @@ namespace llvm2py {
             handleValue(var, PT),
             initializer,
             py::bool_(var.isConstant()),
-            py::list(py::cast(attributes)),
+            attributes,
             handleGlobalObject(var, PT),
             py::bool_(var.isExternallyInitialized())
-            );
+        );
     }
 
     py::object handleFunction(const Function &function, const PythonTypes &PT)

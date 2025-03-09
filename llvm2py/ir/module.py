@@ -6,27 +6,20 @@ from .function import Function
 
 @dataclass
 class Module:
-    __match_args__ = ("funcs", "global_vars")
+    """
+    Module class coresponds to the llvm module class.
+    """
 
-    # Tuple of function objects that the module contains
-    funcs: list[Function]
-    # A dictionary that mapf global variable names to their objects
+    funcs: dict[str, Function]
+    """
+    A dictionary that maps function names to their objects.
+    """
+
     global_vars: dict[str, GlobalVariable]
-    # A dictionary that maps function names to their objects
-    funcs_map: dict[str, Function]
+    """
+    A dictionary that maps global variable names to their objects.
+    """
 
-    def __init__(self, funcs: dict[Function], global_vars: tuple[GlobalVariable]):
-        self.funcs_map = {func.value.val: func for func in funcs}
-        self.funcs = funcs
+    def __init__(self, funcs: list[Function], global_vars: tuple[GlobalVariable]):
+        self.funcs = {func.value.val: func for func in funcs}
         self.global_vars = {var.value.val: var for var in global_vars}
-
-    def __str__(self):
-        gvars = "\n".join(map(str, self.global_vars.values()))
-        funcs = "\n".join(map(str, self.funcs))
-        return gvars + "\n\n" + funcs
-
-    def get_function(self, name: str):
-        """
-        Returns the function object by name
-        """
-        return self.funcs_map.get(name)

@@ -1,39 +1,59 @@
-from typing import NamedTuple
-from llvm2py.ir.global_object import GlobalObject
+from dataclasses import dataclass
 
+from .global_object import GlobalObject
+from .enum import Attrs
+from .support import attrs_to_dict
 from .value import Value
 
 
-class Ret(NamedTuple):
-    """Ret instruction
-
-    llvm specification: https://llvm.org/docs/LangRef.html#ret-instruction
-
-    :param value: returned value
-    :type value: :class: `Value`
+@dataclass
+class GlobalVariable:
+    """
+    `GlobalVariable class <https://llvm.org/docs/LangRef.html#global-variables>`_.
     """
 
     value: Value
+    """
+    Global variable as value
+    """
 
+    initializer: Value
+    """
+    A constant value that the global variable takes on during initialization.
+    """
 
-class GlobalVariable(NamedTuple):
-    # https://llvm.org/docs/LangRef.html#global-variables
+    is_const: bool
+    """
+    If True, varialbe is marked as a constant.
+    """
 
-    # global variable as value
-    value: Value
+    attrs: Attrs
+    """
+    Global variable attributes.
+    """
 
-    initializer: Value  # constant value
-
-    is_const: bool  # is variable constant
-
-    # https://llvm.org/docs/LangRef.html#global-attributes
-    attributes: set[str]  # set of variable attributes
-
-    # global variable as global object
     global_object: GlobalObject
+    """
+    Global variable as global object.
+    """
 
-    # https://llvm.org/docs/LangRef.html#global-variables
     is_externally_initialized: bool
+    """
+    If True, variable is marked as ExternallyInitialized.
+    """
 
-    def __str__(self):
-        return f"{self.value.val} = {self.initializer}"
+    def __init__(
+        self,
+        value,
+        initializer,
+        is_const,
+        attributes,
+        global_object,
+        is_externally_initialized,
+    ):
+        self.value = value
+        self.initializer = initializer
+        self.is_const = is_const
+        self.attrs = attrs_to_dict(attributes)
+        self.global_object = global_object
+        self.is_externally_initialized = is_externally_initialized

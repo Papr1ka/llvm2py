@@ -43,3 +43,9 @@ You can find these attributes in the classes:
 :class:`llvm2py.ir.instruction.Invoke`,
 :class:`llvm2py.ir.instruction.CallBr`,
 :class:`llvm2py.ir.instruction.Call`.
+
+`Fast math flags <https://llvm.org/docs/LangRef.html#fast-math-flags>`_ are represented
+by a set of strings, where the possible strings are bounded by the set: 
+{"nnan", "ninf", "nsz", "arcp", "contract", "afn", "reassoc"}.
+
+One of the classes: :class:`llvm2py.ir.instruction.BinOp`.

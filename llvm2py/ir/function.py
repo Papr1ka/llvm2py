@@ -1,55 +1,66 @@
 from dataclasses import dataclass
 
-from .support import attrs_to_dict
+from .support import attrs_list_to_dict
 
 from .global_object import GlobalObject
 
 from .block import Block
 from .value import Value
-from .instruction import Attrs
-from .cconv import CallingConv
+from .enum import CallingConv, Attrs
 
 
 @dataclass
 class Function:
-    __match_args__ = (
-        "value",
-        "args",
-        "blocks",
-        "calling_convention",
-        "global_object",
-        "attrs",
-    )
+    """
+    Function class
+    """
 
-    # function as value
     value: Value
+    """
+    Function as value.
+    """
 
-    # function arguments
     args: list[Value]
+    """
+    List of function arguments.
+    """
 
     # function basic blocks
     blocks: dict[str, Block]
+    """
+    A dictionary that maps block names to their objects.
+    """
 
-    # A list of function attribute tuples,
-    # it is worth paying attention to methods
-    # {function, ret, arguments, argument}_attributes
     attrs: list[Attrs]
+    """
+    A list of function attributes.
+    Each element references either the function itself, the return value, or one of the arguments.
+    
+    For convenience, you can use functions from the support module to extract attributes.
+    """
 
     calling_convention: CallingConv
+    """
+    Function calling convention.
+    """
 
-    # True if function has a variable number of arguments
-    # example - @printf(ptr noundef, ...)
     is_vararg: bool
+    """
+    If True, the function has a variable number of arguments.
+    For example - @printf(ptr noundef, ...).
+    """
 
-    # function as global object
     global_object: GlobalObject
+    """
+    Function as global object.
+    """
 
     def __init__(
         self,
         value: Value,
         args: list[Value],
         blocks: list[Block],
-        attributes: list[tuple],
+        attributes: list[list[tuple]],
         calling_convention: int,
         is_vararg: bool,
         global_object: GlobalObject,
@@ -57,12 +68,13 @@ class Function:
         self.value = value
         self.args = args
         self.blocks = {block.value.val: block for block in blocks}
-        self.attrs = list(attrs_to_dict(attrs) for attrs in attributes)
+        self.attrs = attrs_list_to_dict(attributes)
         self.calling_convention = CallingConv(calling_convention)
         self.is_vararg = is_vararg
         self.global_object = global_object
 
-    def __str__(self):
-        args = ", ".join(map(str, self.args))
-        blocks = "\n".join(map(str, self.blocks.values()))
-        return f"define {self.value.ty} @{self.value.val}({args}) {{\n{blocks}\n}}"
+    def has_no_body(self):
+        """
+        Returns true if the function is only declared but not defined.
+        """
+        return len(self.blocks) == 0

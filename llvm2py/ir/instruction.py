@@ -1,137 +1,9 @@
 from typing import Any, Callable, Iterable, NamedTuple, Literal, Union
 from .type import Type
 from .value import Value
-from .cconv import CallingConv
-from .support import attrs_to_dict
+from .support import attrs_to_dict, attrs_list_to_dict
+from .enum import CallingConv, Ordering, Attrs
 
-
-Attrs = dict[str, Union[tuple, tuple[Any], tuple[Any, Any]]]
-
-
-ParameterAttribute = Literal[
-    "zeroext",
-    "signext",
-    "noext",
-    "inreg",
-    "byval",
-    "byref",
-    "preallocated",
-    "inalloca",
-    "sret",
-    "elementtype",
-    "align",
-    "noalias",
-    "captures",
-    "nofree",
-    "nest",
-    "returned",
-    "nonnull",
-    "dereferenceable",
-    "dereferenceable_or_null",
-    "swiftself",
-    "swiftasync",
-    "swifterror",
-    "immarg",
-    "noundef",
-    "nofpclass",
-    "alignstack",
-    "allocalign",
-    "allocptr",
-    "readnone",
-    "readonly",
-    "writeonly",
-    "writable",
-    "initializes",
-    "dead_on_unwind",
-    "range",
-]
-
-FunctionAttribute = Literal[
-    "alignstack",
-    "alloc-family",
-    "allockind",
-    "allocsize",
-    "alwaysinline",
-    "builtin",
-    "cold",
-    "convergent",
-    "disable_sanitizer_instrumentation",
-    "dontcall-error",
-    "dontcall-warn",
-    "fn_ret_thunk_extern",
-    "frame-pointer",
-    "hot",
-    "inlinehint",
-    "jumptable",
-    "memory",
-    "minsize",
-    "naked",
-    "no-inline-line-tables",
-    "no-jump-tables",
-    "nobuiltin",
-    "nocallback",
-    "nodivergencesource",
-    "noduplicate",
-    "nofree",
-    "noimplicitfloat",
-    "noinline",
-    "nomerge",
-    "nonlazybind",
-    "noprofile",
-    "skipprofile",
-    "noredzone",
-    "indirect-tls-seg-refs",
-    "noreturn",
-    "norecurse",
-    "willreturn",
-    "nosync",
-    "nounwind",
-    "nosanitize_bounds",
-    "nosanitize_coverage",
-    "null_pointer_is_valid",
-    "optdebug",
-    "optforfuzzing",
-    "optnone",
-    "optsize",
-    "patchable-function",
-    "probe-stack",
-    "stack-probe-size",
-    "no-stack-arg-probe",
-    "returns_twice",
-    "safestack",
-    "sanitize_address",
-    "sanitize_memory",
-    "sanitize_thread",
-    "sanitize_hwaddress",
-    "sanitize_memtag",
-    "sanitize_realtime",
-    "sanitize_realtime_blocking",
-    "speculative_load_hardening",
-    "speculatable",
-    "ssp",
-    "sspstrong",
-    "sspreq",
-    "strictfp",
-    "denormal-fp-math",
-    "denormal-fp-math-f32",
-    "thunk",
-    "uwtable",
-    "nocf_check",
-    "shadowcallstack",
-    "mustprogress",
-    "warn-stack-size",
-    "vscale_range",
-    "nooutline",
-]
-
-CallSiteAttribute = Literal["vector-function-abi-variant", "preallocated"]
-
-GlobalAttributes = Literal[
-    "no_sanitize_address",
-    "no_sanitize_hwaddress",
-    "sanitize_memtag",
-    "sanitize_address_dyninit",
-]
 
 # fmt: off
 class Ret(NamedTuple):
@@ -146,7 +18,7 @@ class Ret(NamedTuple):
     one that returns a value and then causes control flow,
     and one that just causes control flow to occur.
 
-    :param value: return value
+    :param value: A return value.
     :type value: Value | None
     
     Conversation::
@@ -172,11 +44,11 @@ class Br(NamedTuple):
     There are two forms of this instruction, corresponding to a conditional branch
     and an unconditional branch.
 
-    :param cond: condition
+    :param cond: A condition.
     :type cond: Value
-    :param label_false: if cond is false, control flows to the label_false
+    :param label_false: If cond is False, control flows to the label_false.
     :type label_false: Value
-    :param label_true: if cond is true, control flows to the label_true
+    :param label_true: If cond is True, control flows to the label_true.
     :type label_true: Value | None
 
     Conversation::
@@ -209,11 +81,11 @@ class Switch(NamedTuple):
     It is a generalization of the ‘br’ instruction, allowing
     a branch to occur to one of many possible destinations.
 
-    :param cond: comparison value
+    :param cond: A comparison value.
     :type cond: Value
-    :param label_default: default destination label,
+    :param label_default: A default destination label.
     :type label_default: Value
-    :param cases: list of pairs of comparison values and labels
+    :param cases: A list of pairs of comparison values and labels.
     :type cases: list[tuple[Value, Value]]
 
     Conversation::
@@ -241,9 +113,9 @@ class IndirectBr(NamedTuple):
     within the current function, whose address is specified by “address”.
     Address must be derived from a blockaddress constant.
 
-    :param addr: the address of the label to jump to
+    :param addr: The address of the label to jump to.
     :type addr: Value
-    :param possible_dests: indicates the full set of possible destinations that the address may point to
+    :param possible_dests: A list, indicating the full set of possible destinations that the address may point to.
     :type possible_dests: list[Value]
 
     Conversation::
@@ -262,20 +134,6 @@ class IndirectBr(NamedTuple):
     addr: Value
     possible_dests: list[Value]
 
-
-"""
-            [
-                {**fn attrs},
-                {**ret attrs},
-                {**arg0 attrs},
-                {**arg1 attrs},
-                ...
-            ],
-            {
-                addrspace: num (optional),
-                
-            }
-"""
 
 class Invoke(NamedTuple):
     """
@@ -296,19 +154,20 @@ class Invoke(NamedTuple):
     it to the “invoke” instruction, so that the important information
     contained within the “landingpad” instruction can’t be lost through normal code motion.
 
-    :param result: returned value
+    :param result: A returned value.
     :type result: Value
-    :param callee: function to be invoked, pointer or function name
+    :param callee: The function to be invoked, pointer or function name.
     :type callee: Value
-    :param args: argument list
+    :param args: An argument list.
     :type args: list[Value]
-    :param label_ok: the label reached when the called function executes a ‘ret’ instruction
+    :param label_ok: The label reached when the called function executes a ‘ret’ instruction.
     :type label_ok: Value
-    :param label_err: the label reached when a callee returns via the resume instruction or other exception handling mechanism
+    :param label_err: The label reached when a callee returns via the resume instruction
+        or other exception handling mechanism.
     :type label_err: Value
-    :param calling_conv: calling convention than the call should use
+    :param calling_conv: The calling convention that should be used in a call.
     :type calling_conv: CallingConv
-    :param call_attrs: list containing all call-related attributes
+    :param call_attrs: A list containing all call-related attributes.
     :type call_attrs: list[Attrs]
 
     Conversation::
@@ -345,7 +204,7 @@ class Resume(NamedTuple):
         
     The ‘resume’ instruction is a terminator instruction that has no successors.
 
-    :param val: exception whose propagation to resume
+    :param val: An exception whose propagation to resume.
     :type val: Value
 
     Conversation::
@@ -379,20 +238,22 @@ class CallBr(NamedTuple):
     The assembly code may only transfer control to addresses provided
     via this instruction’s indirect labels.
 
-    :param result: return value
+    :param result: A return value.
     :type result: Value
-    :param callee: function to be invoked, **inline asm** or pointer
+    :param callee: The function to be invoked, **inline asm** or pointer.
     :type callee: Value
-    :param args: argument list
+    :param args: An argument list.
     :type args: list[Value]
-    :param fallthrough_label: the label reached when the inline assembly’s execution exits the bottom
+    :param fallthrough_label: The label reached when the inline assembly’s execution exits the bottom.
     :type fallthrough_label: Value
-    :param indirect_labels: the labels reached when a callee transfers control to a location other than the ‘fallthrough label’. Label constraints refer to these destinations
+    :param indirect_labels: The labels reached when a callee transfers control to
+        a location other than the ‘fallthrough label’.
+        The label constraints refer to these destinations.
     :type indirect_labels: list[Value]
     
-    :param calling_conv: calling convention than the call should use
+    :param calling_conv: The calling convention that should be used in a call.
     :type calling_conv: CallingConv
-    :param call_attrs: list containing all call-related attributes
+    :param call_attrs: A list containing all call-related attributes.
     :type call_attrs: list[Attrs]
 
     Conversation::
@@ -439,13 +300,14 @@ class CatchSwitch(NamedTuple):
     to describe the set of possible catch handlers that may be executed
     by the EH personality routine.
 
-    :param result: result value
+    :param result: A result value.
     :type result: Value
-    :param parent: the token of the funclet that contains the catchswitch instruction. If the catchswitch is not inside a funclet, this operand may be the token none.
+    :param parent: The token of the funclet that contains the catchswitch instruction.
+        If the catchswitch is not inside a funclet, this operand may be the token none.
     :type parent: Value
-    :param handler_labels: list of successor blocks that each begin with a catchpad instruction
+    :param handler_labels: A list of successor blocks that each begin with a catchpad instruction.
     :type handler_labels: list[Value]
-    :param label_default: the label of another basic block beginning with either a cleanuppad or catchswitch instruction
+    :param label_default: The label of another basic block beginning with either a cleanuppad or catchswitch instruction.
     :type label_default: Value | None
 
     Conversation::
@@ -486,9 +348,9 @@ class CatchRet(NamedTuple):
     
     The ‘catchret’ instruction is a terminator instruction that has a single successor.
 
-    :param catch: token indicating which catchpad it exits
+    :param catch: A token indicating which catchpad it exits.
     :type catch: Value
-    :param succ_label: label to which control will be transferred
+    :param succ_label: A label to which control will be transferred.
     :type succ_label: Value
 
     Conversation::
@@ -510,9 +372,9 @@ class CleanupRet(NamedTuple):
     
     The ‘cleanupret’ instruction is a terminator instruction that has an optional successor.
 
-    :param cleanup: token indicating which cleanuppad it exits, must be a cleanuppad
+    :param cleanup: A token indicating which cleanuppad it exits, must be a cleanuppad.
     :type cleanup: Value
-    :param succ_label: successor, the label of another basic block beginning with either a cleanuppad or catchswitch instruction
+    :param succ_label: A successor, the label of another basic block beginning with either a cleanuppad or catchswitch instruction.
     :type succ_label: Value | None
 
     Conversation::
@@ -559,13 +421,13 @@ class UnaryOp(NamedTuple):
     
     This class generalizes all unary operations
 
-    :param opcode: instuction opcode, one of {'fneg'}
+    :param opcode: An instuction opcode, one of {'fneg'}.
     :type opcode: str
-    :param result: produced value
+    :param result: The produced value.
     :type result: Value
-    :param operand: operand
+    :param operand: An operand.
     :type operand: Value
-    :param fast_math_flags: set of fast math flags
+    :param fast_math_flags: The set of fast math flags.
     :type fast_math_flags: frozenset[str]
 
     Conversation::
@@ -584,9 +446,10 @@ class UnaryOp(NamedTuple):
     operand: Value
     fast_math_flags: frozenset[str] = frozenset()
 
+
 class BinOp(NamedTuple):
     """
-    `UnaryOp instruction <https://llvm.org/docs/LangRef.html#unary-operations>`_.
+    `BinOp instruction <https://llvm.org/docs/LangRef.html#binary-operations>`_.
     
     Binary operators are used to do most of the computation in a program.
     They require two operands of the same type, execute an operation on them,
@@ -594,23 +457,31 @@ class BinOp(NamedTuple):
     as is the case with the vector data type. The result value has the same type
     as its operands.
     
-    This class generalizes all binary operations
+    This class generalizes all binary operations.
 
-    :param opcode: instuction opcode, one of {
+    :param opcode: An instuction opcode, one of {
         'add', 'fadd', 'sub', 'fsub', 'mul',
         'fmul', 'udiv', 'sdiv', 'fdiv', 'urem',
         'srem', 'frem', 'shl', 'lshr', 'ashr',
         'and', 'or', 'xor'
-        }
+        }.
     :type opcode: str
-    :param result: produced value
+    :param result: The produced value.
     :type result: Value
-    :param fst_operand: first operand
+    :param fst_operand: The first operand.
     :type fst_operand: Value
-    :param snd_operand: second operand
+    :param snd_operand: The second operand.
     :type snd_operand: Value
-    :param snd_operand: optional attributes
-    :type snd_operand: Value
+    :param fast_math_flags: The set of fast math flags.
+    :type fast_math_flags: frozenset[str]
+    :param is_nuw: If True, the instruction has a "nuw" flag.
+    :type is_nuw: bool
+    :param is_nsw: If True, the instruction has a "nsw" flag.
+    :type is_nsw: bool
+    :param is_exact: If True, the instruction has a "exact" flag.
+    :type is_exact: bool
+    :param is_disjoint: If True, the instruction has a "disjoint" flag.
+    :type is_disjoint: bool
 
     Conversation::
     
@@ -633,7 +504,6 @@ class BinOp(NamedTuple):
     is_nsw: bool = False
     is_exact: bool = False
     is_disjoint: bool = False
-    
 
 
 class ExtractElement(NamedTuple):
@@ -643,11 +513,11 @@ class ExtractElement(NamedTuple):
     The ‘extractelement’ instruction extracts a single scalar element
     from a vector at a specified index.
 
-    :param result: a scalar of the same type as the element type of vector
+    :param result: A scalar of the same type as the element type of vector.
     :type result: Value
-    :param vector: a value of vector type
+    :param vector: A value of vector type.
     :type vector: Value
-    :param index: an index indicating the position from which to extract the element
+    :param index: An index indicating the position from which to extract the element.
     :type index: Value
 
     Conversation::
@@ -678,13 +548,13 @@ class InsertElement(NamedTuple):
     
     The ‘insertelement’ instruction inserts a scalar element into a vector at a specified index.
 
-    :param result: a vector of the same type as val
+    :param result: A vector of the same type as val.
     :type result: Value
-    :param vector: a value of vector type
+    :param vector: A value of vector type.
     :type vector: Value
-    :param elem: a scalar value whose type must equal the element type of the first operand
+    :param elem: A scalar value whose type must equal the element type of the first operand.
     :type elem: Value
-    :param index: an index indicating the position at which to insert the value
+    :param index: An index indicating the position at which to insert the value.
     :type index: Value
 
     Conversation::
@@ -719,14 +589,17 @@ class ShuffleVector(NamedTuple):
     from two input vectors, returning a vector with the same element
     type as the input and length that is the same as the shuffle mask.
 
-    :param result: a vector whose length is the same as the shuffle mask and whose element type is the same as the element type of the first two operands
+    :param result: A vector whose length is the same as the shuffle mask
+        and whose element type is the same as the element type of the first two operands.
     :type result: Value
-    :param fst_vector: a value of vector type
+    :param fst_vector: A value of vector type.
     :type fst_vector: Value
-    :param snd_vector: a value of vector type with the same type as fst_vector
+    :param snd_vector: A value of vector type with the same type as fst_vector.
     :type snd_vector: Value
-    :param mask_vector: a shuffle mask vector constant whose element type is i32,
-        if the value of the mask_vector element is -1, the result element must have the poison or undef value. zeroinitializer represented as an array of zeros
+    :param mask_vector: A shuffle mask vector constant whose element type is i32,
+        if the value of the mask_vector element is -1,
+        the result element must have the poison or undef value.
+        A "zeroinitializer" represented as an array of zeros.
     :type mask_vector: list[int]
 
     Conversation::
@@ -759,11 +632,12 @@ class ExtractValue(NamedTuple):
     
     The ‘extractvalue’ instruction extracts the value of a member field from an aggregate value.
 
-    :param result: the value at the position in the aggregate specified by the index operands
+    :param result: The value at the position in the aggregate specified by the index operands.
     :type result: Value
-    :param aggregate: a value of struct or array type
+    :param aggregate: A value of struct or array type.
     :type aggregate: Value
-    :param indices: list of constant indices to specify which value to extract in a similar manner as indices in a ‘getelementptr’ instruction
+    :param indices: A list of constant indices to specify which value
+        to extract in a similar manner as indices in a ‘getelementptr’ instruction.
     :type indices: list[int]
     
     Conversation::
@@ -787,13 +661,16 @@ class InsertValue(NamedTuple):
     
     The ‘insertvalue’ instruction inserts a value into a member field in an aggregate value.
 
-    :param result: a value of the same type as aggregate. Its value is that of aggregate except that the value at the position specified by the indices is that of elem
+    :param result: A value of the same type as aggregate.
+        Its value is that of aggregate except that the value
+        at the position specified by the indices is that of elem.
     :type result: Value
-    :param aggregate: a value of struct or array type
+    :param aggregate: A value of struct or array type.
     :type aggregate: Value
-    :param elem: a value to insert
+    :param elem: A value to insert.
     :type elem: Value
-    :param indices: list of constant indices indicating the position at which to insert the value in a similar manner as indices in a ‘extractvalue’ instruction
+    :param indices: A list of constant indices indicating the position at which
+        to insert the value in a similar manner as indices in a ‘extractvalue’ instruction.
     :type indices: list[int]
     
     Conversation::
@@ -816,17 +693,20 @@ class Alloca(NamedTuple):
     """
     `Alloca instruction <https://llvm.org/docs/LangRef.html#alloca-instruction>`_.
     
-    The ‘insertvalue’ instruction inserts a value into a member field in an aggregate value.
+    The ‘alloca’ instruction allocates memory on the stack frame of the
+    currently executing function, to be automatically released when
+    this function returns to its caller.
 
-    :param result: a pointer to uninitialized allocated memory
+    :param result: A pointer to uninitialized allocated memory.
     :type result: Value
-    :param allocated_ty: a type to allocate
+    :param allocated_ty: The type to allocate.
     :type allocated_ty: Type
-    :param num_elements: the number of elements allocated
+    :param num_elements: The number of elements to allocate.
     :type num_elements: Value
-    :param align: if specified, the value result of the allocation is guaranteed to be aligned to at least that boundary
+    :param align: If specified, the value result of the allocation is guaranteed
+        to be aligned to at least that boundary.
     :type align: int
-    :param is_inalloca: https://llvm.org/docs/InAlloca.html
+    :param is_inalloca: If True, the instruction has a "inalloca" flag.
     :type is_inalloca: bool
     
     Conversation::
@@ -853,20 +733,20 @@ class Load(NamedTuple):
     
     The ‘load’ instruction is used to read from memory.
 
-    :param result: loaded value
+    :param result: The loaded value.
     :type result: Value
-    :param address: a memory address from which to load
+    :param address: The memory address from which to load.
     :type address: Value
-    :param align: the alignment of the operation (that is, the alignment of the memory address)
+    :param align: The alignment of the operation (that is, the alignment of the memory address).
     :type align: int
-    :param is_volatile: If the load is marked as volatile, then the optimizer is not allowed to modify the number or order of execution of this load with other volatile operations
+    :param is_volatile: If True, the instruction has a "volatile" flag.
     :type is_volatile: bool
-    :param is_atomic: is the load atomic
+    :param is_atomic: If True, the instruction is atomic.
     :type is_atomic: bool
     :param ordering: https://llvm.org/docs/LangRef.html#ordering
-    :type ordering: str
+    :type ordering: Ordering
     :param syncscope: https://llvm.org/docs/LangRef.html#syncscope
-    :type syncscope: str
+    :type syncscope: int | None
     
     Conversation::
     
@@ -894,8 +774,8 @@ class Load(NamedTuple):
     align: int = 0
     is_volatile: bool = False
     is_atomic: bool = False
-    ordering: str | None = None
-    syncscope: str | None = None
+    ordering: Ordering = Ordering.NotAtomic
+    syncscope: int | None = None
 
 
 class Store(NamedTuple):
@@ -904,22 +784,20 @@ class Store(NamedTuple):
     
     The ‘store’ instruction is used to write to memory.
     
-    :param value: a value to store
+    :param value: The value to store.
     :type value: Value
-    :param address: an address at which to store value
+    :param address: An address at which to store value.
     :type address: Value
-    :param align: the alignment of the operation (that is, the alignment of the memory address)
+    :param align: The alignment of the operation (that is, the alignment of the memory address).
     :type align: int
-    :param is_volatile: If the store is marked as volatile,
-        then the optimizer is not allowed to modify the number or
-        order of execution of this store with other volatile operations
+    :param is_volatile: If True, the instruction has a "volatile" flag.
     :type is_volatile: bool
-    :param is_atomic: is the store atomic
+    :param is_atomic: If True, the instruction is atomic.
     :type is_atomic: bool
     :param ordering: https://llvm.org/docs/LangRef.html#ordering
-    :type ordering: str | None
+    :type ordering: Ordering
     :param syncscope: https://llvm.org/docs/LangRef.html#syncscope
-    :type syncscope: str | None
+    :type syncscope: int | None
     
     Conversation::
     
@@ -947,8 +825,8 @@ class Store(NamedTuple):
     align: int = 0
     is_volatile: bool = False
     is_atomic: bool = False
-    ordering: str | None = None
-    syncscope: str | None = None
+    ordering: Ordering = Ordering.NotAtomic
+    syncscope: int | None = None
 
 
 class Fence(NamedTuple):
@@ -958,9 +836,9 @@ class Fence(NamedTuple):
     The ‘fence’ instruction is used to introduce happens-before edges between operations.
     
     :param ordering: https://llvm.org/docs/LangRef.html#ordering
-    :type ordering: str
+    :type ordering: Ordering
     :param syncscope: https://llvm.org/docs/LangRef.html#syncscope
-    :type syncscope: str | None
+    :type syncscope: int | None
     
     Conversation::
     
@@ -970,8 +848,8 @@ class Fence(NamedTuple):
             target-scope
         )
     """
-    ordering: str
-    syncscope: str | None = None
+    ordering: Ordering
+    syncscope: int | None = None
 
 
 class CmpXchg(NamedTuple):
@@ -982,26 +860,27 @@ class CmpXchg(NamedTuple):
     It loads a value in memory and compares it to a given value.
     If they are equal, it tries to store a new value into the memory.
     
-    :param result: struct with the original value at the location and a flag indicating success (true) or failure (false)
+    :param result: A struct with the original value at the location
+        and a flag indicating success (true) or failure (false).
     :type result: Value
-    :param address: an address to operate on
+    :param address: An address to operate on.
     :type address: Value
-    :param compare_value: a value to compare to the value currently be at the address
+    :param compare_value: A value to compare to the value currently be at the address.
     :type compare_value: Value
-    :param new_value: a new value to place at the address if the compared values are equal.
+    :param new_value: A new value to place at the address if the compared values are equal.
     :type new_value: Value
     :param ordering_ok: https://llvm.org/docs/LangRef.html#ordering
-    :type ordering_ok: str
+    :type ordering_ok: Ordering
     :param ordering_err: https://llvm.org/docs/LangRef.html#ordering
-    :type ordering_err: str
-    :param align: an alignment
+    :type ordering_err: Ordering
+    :param align: An alignment.
     :type align: int
-    :param is_weak: If the cmpxchg operation is marked as weak then a spurious failure is permitted: the operation may not write <new> even if the comparison matched.
+    :param is_weak: If True, the instruction has a "weak" flag.
     :type is_weak: bool
-    :param is_volatile: If the cmpxchg is marked as volatile, then the optimizer is not allowed to modify the number or order of execution of this cmpxchg with other volatile operations
+    :param is_volatile: If True, the instruction has a "volatile" flag.
     :type is_volatile: bool
     :param syncscope: https://llvm.org/docs/LangRef.html#syncscope
-    :type syncscope: str | None
+    :type syncscope: int | None
     
     Conversation::
     
@@ -1023,12 +902,12 @@ class CmpXchg(NamedTuple):
     address: Value
     compare_value: Value
     new_value: Value
-    ordering_ok: str
-    ordering_err: str
+    ordering_ok: Ordering
+    ordering_err: Ordering
     align: int = 0
     is_weak: bool = False
     is_volatile: bool = False
-    syncscope: str | None = None
+    syncscope: int | None = None
 
 
 class AtomicRmw(NamedTuple):
@@ -1037,27 +916,27 @@ class AtomicRmw(NamedTuple):
     
     The ‘atomicrmw’ instruction is used to atomically modify memory.
     
-    :param op: an operation to apply, one of {
+    :param op: An operation to apply, one of {
         'xchg', 'add', 'sub', 'and', 'nand',
         'or', 'xor', 'max', 'min', 'umax',
         'umin', 'fadd', 'fsub', 'fmax', 'fmin',
         'uinc_wrap', 'udec_wrap', 'usub_cond', 'usub_sat'
-        }
+        }.
     :type op: str
-    :param result: the original value at the location
+    :param result: The original value at the location.
     :type result: Value
-    :param address: an address whose value to modify
+    :param address: An address whose value to modify.
     :type address: Value
-    :param operand: an argument to the operation
+    :param operand: An argument to the operation.
     :type operand: Value
     :param ordering: https://llvm.org/docs/LangRef.html#ordering
-    :type ordering: str
-    :param align: an alignment
+    :type ordering: Ordering
+    :param align: An alignment.
     :type align: int
-    :param is_volatile: If the atomicrmw is marked as volatile, then the optimizer is not allowed to modify the number or order of execution of this atomicrmw with other volatile operations
+    :param is_volatile: If True, the instruction has a "volatile" flag.
     :type is_volatile: bool
     :param syncscope: https://llvm.org/docs/LangRef.html#syncscope
-    :type syncscope: str | None
+    :type syncscope: int | None
     
     Conversation::
     
@@ -1077,10 +956,10 @@ class AtomicRmw(NamedTuple):
     result: Value
     address: Value
     operand: Value
-    ordering: str
+    ordering: Ordering
     align: int = 0
     is_volatile: bool = False
-    syncscope: str | None = None
+    syncscope: int | None = None
 
 
 class GetElementPtr(NamedTuple):
@@ -1092,31 +971,22 @@ class GetElementPtr(NamedTuple):
     It performs address calculation only and does not access memory.
     The instruction can also be used to calculate a vector of such addresses.
     
-    :param result: resulting address
+    :param result: The resulting address.
     :type result: Value
-    :param source_ty: a type used as the basis for the calculations
+    :param source_ty: A type used as the basis for the calculations.
     :type source_ty: Type
-    :param base_addr: a pointer or a vector of pointers, and is the base address to start from
+    :param base_addr: A pointer, or vector of pointers, the base address to start with.
     :type base_addr: Value
-    :param indices: indices that indicate which of the elements of the aggregate object are indexed
+    :param indices: A list indicationg which of the elements of the aggregate object are indexed.
     :type indices: list[Value]
-    :param dest_ty: the type pointed to by the received address
+    :param dest_ty: The type pointed to by the received address.
     :type dest_ty: Type
-    :param is_nuw: presense of no unsigned wrap flag
-    :type is_nuw: bool
-    :param is_nusw: presense of no unsigned signed wrap flag
-    :type is_nusw: str | None
-    :param is_inbounds: presense of inbounds flag
+    :param is_inbounds: If True, the instruction has a "inbounds" flag.
     :type is_inbounds: str | None
-    :param inrange: if is not None, loading from or storing to
-        any pointer derived from the getelementptr has undefined behavior
-        if the load or store would access memory outside the half-open
-        range [Start, End) from the getelementptr expression result
-    :type inrange: str | None
     
     Conversation::
     
-        <result> = getelementptr [inbounds] [nusw] [nuw] [inrange(S,E)] <ty>, ptr <ptrval>{, <ty> <idx>}*
+        <result> = getelementptr [inbounds] <ty>, ptr <ptrval>{, <ty> <idx>}*
         GetElementPtr(
             Value(result, PtrType(...)),
             ty,
@@ -1127,46 +997,40 @@ class GetElementPtr(NamedTuple):
                 ...
             ]
         )
-        
-    .. note::
-        inrange attribute still is not supported https://github.com/llvm/llvm-project/issues/128031
     """
     result: Value
     source_ty: Type
     base_addr: Value
     indices: list[Value]
     dest_ty: Type | None = None
-    is_nuw: bool = False
-    is_nusw: bool = False
     is_inbounds: bool = False
-    inrange: tuple[int, int] | None = None
     
 
 class Conversion(NamedTuple):
     """
     `Conversion operations <https://llvm.org/docs/LangRef.html#conversion-operations>`_.
     
-    The instructions in this category are the conversion instructions
-    (casting) which all take a single operand and a type.
+    These instructions are the conversion instructions (casting)
+    which all take a single operand and a type.
     They perform various bit conversions on the operand.
     
-    This class generalizes all conversion operations
+    This class generalizes all conversion operations.
 
-    :param opcode: instuction opcode, one of {
+    :param opcode: An instuction opcode, one of {
         'trunc', 'zext', 'sext', 'fptrunc', 'fpext',
         'fptoui', 'fptosi', 'uitofp', 'sitofp', 'ptrtoint',
         'inttoptr', 'bitcast', 'addrspacecast'
-        }
+        }.
     :type opcode: str
-    :param result: converted value
+    :param result: The converted value.
     :type result: Value
-    :param value: a value to convert
+    :param value: A value to convert.
     :type value: Value
-    :param fast_math_flags: fast-math flags
+    :param fast_math_flags: A set of fast math flags.
     :type fast_math_flags: frozenset[str]
-    :param is_nuw: presence of nuw flag
+    :param is_nuw: If True, the instruction has a "nuw" flag.
     :type is_nuw: bool
-    :param is_nsw: presence of nsw flag
+    :param is_nsw: If True, the instruction has a "nsw" flag.
     :type is_nsw: bool
     
     Conversation::
@@ -1198,40 +1062,33 @@ class ICmp(NamedTuple):
     based on comparison of its two integer,
     integer vector, pointer, or pointer vector operands.
 
-    :param cond: the condition code indicating the kind of comparison to perform, one of {
+    :param cond: The condition code indicating the kind of comparison to perform, one of {
         'eq', 'ne', 'ugt', 'uge', 'ult',
         'ule', 'sgt', 'sge', 'slt', 'sle',
-        }
+        }.
     :type cond: str
-    :param result: converted value
+    :param result: The converted value.
     :type result: Value
-    :param arg0: first operand to compare
-    :type arg0: Value
-    :param arg1: second operand to compare
-    :type arg1: Value
-    :param is_samesign: presence of samesign flag
-    :type is_samesign: bool
+    :param fst_operand: A first operand to compare.
+    :type fst_operand: Value
+    :param snd_operand: A second operand to compare.
+    :type snd_operand: Value
     
     Conversation::
     
-        <result> = icmp [samesign] <cond> <ty> <op1>, <op2>   ; yields i1 or <N x i1>:result
+        <result> = icmp <cond> <ty> <op1>, <op2>   ; yields i1 or <N x i1>:result
         ICmp(
             cond,
             Value(result, IntegerType(1) or VectorType(N, IntegerType(1))),
             Value(op1, ty),
             Value(op2, ty),
-            samesign?
         )
     
-    .. note::
-        is_samesign is not supported in LLVM <= 19, it's for the future version
     """
     cond: str
     result: Value
-    arg0: Value
-    arg1: Value
-    is_samesign: bool = False
-
+    fst_operand: Value
+    snd_operand: Value
 
 class FCmp(NamedTuple):
     """
@@ -1246,18 +1103,18 @@ class FCmp(NamedTuple):
     then the result type is a vector of boolean with the same number of elements
     as the operands being compared.
 
-    :param cond: the condition code indicating the kind of comparison to perform, one of {
+    :param cond: The condition code indicating the kind of comparison to perform, one of {
         'eq', 'ne', 'ugt', 'uge', 'ult',
         'ule', 'sgt', 'sge', 'slt', 'sle',
-        }
+        }.
     :type cond: str
-    :param result: converted value
+    :param result: The converted value.
     :type result: Value
-    :param arg0: first operand to compare
-    :type arg0: Value
-    :param arg1: second operand to compare
-    :type arg1: Value
-    :param fast_math_flags: fast-math flags
+    :param fst_operand: A first operand to compare.
+    :type fst_operand: Value
+    :param snd_operand: A second operand to compare.
+    :type snd_operand: Value
+    :param fast_math_flags: A set of fast math flags.
     :type fast_math_flags: frozenset[str]
     
     Conversation::
@@ -1273,8 +1130,8 @@ class FCmp(NamedTuple):
     """
     cond: str
     result: Value
-    arg0: Value
-    arg1: Value
+    fst_operand: Value
+    snd_operand: Value
     fast_math_flags: frozenset[str] = frozenset()
 
 
@@ -1285,13 +1142,13 @@ class Phi(NamedTuple):
     The ‘phi’ instruction is used to implement
     the φ node in the SSA graph representing the function.
 
-    :param result: taken value specified by the pair corresponding
-        to the predecessor basic block that executed just prior to the current block
+    :param result: A taken value specified by the pair corresponding
+        to the predecessor basic block that executed just prior to the current block.
     :type result: Value
-    :param vals: list of pairs of values and predecessor blocks,
-        with one pair for each predecessor basic block of the current block
+    :param vals: A list of pairs of values and predecessor blocks,
+        with one pair for each predecessor basic block of the current block.
     :type vals: list[tuple[Value, Value]]
-    :param fast_math_flags: fast-math flags
+    :param fast_math_flags: A set of fast math flags.
     :type fast_math_flags: frozenset[str]
     
     Conversation::
@@ -1307,7 +1164,7 @@ class Phi(NamedTuple):
         )
     """
     result: Value
-    vals: list[tuple[Value, Value]]  # (val, label)
+    vals: list[tuple[Value, Value]]
     fast_math_flags: frozenset[str] = frozenset()
 
 
@@ -1318,15 +1175,15 @@ class Select(NamedTuple):
     The ‘select’ instruction is used to choose
     one value based on a condition, without IR-level branching.
 
-    :param result: converted value
+    :param result: The converted value.
     :type result: Value
-    :param cond: value indicating the condition
+    :param cond: A value indicating the condition.
     :type cond: Value
-    :param true_value: value returned if cond is true
+    :param true_value: A value returned if cond is True.
     :type true_value: Value
-    :param false_value: value returned if cond is false
+    :param false_value: A value returned if cond is false.
     :type false_value: Value
-    :param fast_math_flags: fast-math flags
+    :param fast_math_flags: A set of fast math flags.
     :type fast_math_flags: frozenset[str]
     
     Conversation::
@@ -1353,9 +1210,9 @@ class Freeze(NamedTuple):
     
     The ‘freeze’ instruction is used to stop propagation of undef and poison values.
 
-    :param result: arbitrary fixed value, if the value is undef or poison, otherwise value
+    :param result: An arbitrary fixed value, if the value is undef or poison, otherwise value.
     :type result: Value
-    :param value: value, which can be poison or undef
+    :param value: A value, which can be poison or undef.
     :type value: Value
     
     Conversation::
@@ -1376,19 +1233,20 @@ class Call(NamedTuple):
     
     The ‘call’ instruction represents a simple function call.
 
-    :param result: returned value
+    :param result: The returned value.
     :type result: Value
-    :param callee: function to be invoked, pointer or function name
+    :param callee: The function to be invoked, pointer or function name.
     :type callee: Value
-    :param args: argument list
+    :param args: An argument list.
     :type args: list[Value]
-    :param calling_conv: calling convention than the call should use
+    :param calling_conv: The calling convention that should be used in a call.
     :type calling_conv: CallingConv
-    :param call_attrs: list containing all call-related attributes
+    :param call_attrs: A list containing all call-related attributes.
     :type call_attrs: list[Attrs]
-    :param tail_kind: markers indicating that the optimizers should perform tail call optimization
+    :param tail_kind: A marker indicating that the optimizers
+        should perform tail call optimization, one of {'tail', 'musttail', 'notail'}.
     :type tail_kind: str
-    :param fast_math_flags: fast-math flags
+    :param fast_math_flags: A set of fast math flags.
     :type fast_math_flags: frozenset[str]
     
     Conversation::
@@ -1426,9 +1284,9 @@ class VaArg(NamedTuple):
     through the “variable argument” area of a function call.
     It is used to implement the va_arg macro in C.
 
-    :param result: a va_list* value
+    :param result: The va_list* value.
     :type result: Value
-    :param value: a value of the specified argument type
+    :param value: The value of the specified argument type.
     :type value: Value
     
     Conversation::
@@ -1443,9 +1301,9 @@ class VaArg(NamedTuple):
     value: Value
 
 
-class LangingPad(NamedTuple):
+class LandingPad(NamedTuple):
     """
-    `LangingPad instruction <https://llvm.org/docs/LangRef.html#landingpad-instruction>`_.
+    `LandingPad instruction <https://llvm.org/docs/LangRef.html#landingpad-instruction>`_.
     
     The ‘landingpad’ instruction is used by LLVM’s exception handling system
     to specify that a basic block is a landing pad — one where the exception lands,
@@ -1455,12 +1313,12 @@ class LangingPad(NamedTuple):
 
     :param result: https://llvm.org/docs/LangRef.html#landingpad-instruction
     :type result: Value
-    :param is_cleanup: indicates that the landing pad block is a cleanup.
+    :param is_cleanup: If True, the landing pad block is a cleanup.
     :type is_cleanup: bool
-    :param is_catchs: list indicating which clauses are catch-type,
-        in the same order as clauses, you can use zip(is_catchs, clauses)
+    :param is_catchs: A list indicating which clauses are catch-type,
+        in the same order as clauses, you can use zip(is_catchs, clauses).
     :type is_catchs: list[bool]
-    :param clauses: list of clauses
+    :param clauses: A list of clauses.
     :type clauses: list[Value]
     
     Conversation::
@@ -1497,13 +1355,13 @@ class CatchPad(NamedTuple):
     to specify that a basic block begins a catch handler — one where
     a personality routine attempts to transfer control to catch an exception.
 
-    :param result: token, used to match the catchpad to corresponding catchrets
-        and other nested EH pads
+    :param result: The token, used to match the catchpad to corresponding catchrets
+        and other nested EH pads.
     :type result: Value
-    :param catchswith: a token produced by a catchswitch instruction in a predecessor block
+    :param catchswith: A token produced by a catchswitch instruction in a predecessor block.
     :type catchswith: Value
-    :param args: correspond to whatever information the personality routine requires
-        to know if this is an appropriate handler for the exception
+    :param args: A list corresponding to whatever information the personality routine requires
+        to know if this is an appropriate handler for the exception.
     :type args: list[Value]
     
     Conversation::
@@ -1537,13 +1395,13 @@ class CleanupPad(NamedTuple):
     The parent argument is the token of the funclet that contains the cleanuppad instruction.
     If the cleanuppad is not inside a funclet, this operand may be the token none.
 
-    :param result: token, used to match the cleanuppad to corresponding cleanuprets
+    :param result: A token, used to match the cleanuppad to corresponding cleanuprets.
     :type result: Value
-    :param parent: the token of the funclet that contains the cleanuppad instruction.
+    :param parent: The token of the funclet that contains the cleanuppad instruction.
         If the cleanuppad is not inside a funclet, this operand may be the token none.
     :type parent: Value
-    :param args: correspond to whatever additional information the
-        personality function requires to execute the cleanup
+    :param args: A list corresponding to whatever additional information the
+        personality function requires to execute the cleanup.
     :type args: list[Value]
     
     Conversation::
@@ -1599,7 +1457,7 @@ Instruction = (
     | Freeze
     | Call
     | VaArg
-    | LangingPad
+    | LandingPad
     | CatchPad
     | CleanupPad
 )
@@ -1672,7 +1530,7 @@ _constructors: list[tuple[Any, Constructor]] = [
             operands[-3],
             operands[-2],
             CallingConv(additional[0]),
-            attrs_to_dict(additional[1]),
+            attrs_list_to_dict(additional[1]),
         ),
     ),
     # 6
@@ -1708,7 +1566,7 @@ _constructors: list[tuple[Any, Constructor]] = [
             operands[-additional[2] - 2],
             operands[-additional[2] - 1 : -1],
             CallingConv(additional[0]),
-            attrs_to_dict(additional[1]),
+            attrs_list_to_dict(additional[1]),
         ),
     ),
     # unary, 12
@@ -1760,8 +1618,8 @@ _constructors: list[tuple[Any, Constructor]] = [
             attrs.get("align", 0),
             "volatile" in attrs,
             "atomic" in attrs,
-            attrs.get("ordering", "notatomic"),
-            attrs.get("syncscope", "notatomic"),
+            Ordering(attrs.get("ordering", Ordering.NotAtomic)),
+            attrs.get("syncscope", None),
         ),
     ),
     (
@@ -1771,8 +1629,8 @@ _constructors: list[tuple[Any, Constructor]] = [
             attrs.get("align", 0),
             "volatile" in attrs,
             "atomic" in attrs,
-            attrs.get("ordering", "notatomic"),
-            attrs.get("syncscope", "notatomic"),
+            Ordering(attrs.get("ordering", Ordering.NotAtomic)),
+            attrs.get("syncscope", None),
         ),
     ),
     (
@@ -1783,17 +1641,14 @@ _constructors: list[tuple[Any, Constructor]] = [
             operands[0],
             operands[1:],
             additional[0],
-            "nuw" in attrs,
-            "nusw" in attrs,
             "inbounds" in attrs,
-            attrs.get("inrange", None),
         ),
     ),
     (
         Fence,
         lambda unused, unused1, unused2, unused3, attrs: (
-            attrs.get("ordering", "notatomic"),
-            attrs.get("syncscope", "notatomic"),
+            Ordering(attrs.get("ordering", Ordering.NotAtomic)),
+            attrs.get("syncscope", None),
         ),
     ),
     (
@@ -1801,11 +1656,12 @@ _constructors: list[tuple[Any, Constructor]] = [
         lambda operands, value, unused, additional, attrs: (
             value,
             *operands,
-            *additional,
+            Ordering(additional[0]),
+            Ordering(additional[1]),
             attrs.get("align", 0),
             "weak" in attrs,
             "volatile" in attrs,
-            attrs.get("syncscope", "notatomic"),
+            attrs.get("syncscope", None),
         ),
     ),
     (
@@ -1814,10 +1670,10 @@ _constructors: list[tuple[Any, Constructor]] = [
             additional[0],
             value,
             *operands,
-            attrs.get("ordering", "notatomic"),
+            Ordering(attrs.get("ordering", Ordering.NotAtomic)),
             attrs.get("align", 0),
             "volatile" in attrs,
-            attrs.get("syncscope", "notatomic"),
+            attrs.get("syncscope", None),
         ),
     ),
     # conversion, 38
@@ -1850,7 +1706,6 @@ _constructors: list[tuple[Any, Constructor]] = [
             additional[0],
             value,
             *operands,
-            "samesign" in attrs,
         ),
     ),
     (
@@ -1877,7 +1732,7 @@ _constructors: list[tuple[Any, Constructor]] = [
             operands[-1],
             operands[:-1],
             CallingConv(additional[0]),
-            attrs_to_dict(additional[1]),
+            attrs_list_to_dict(additional[1]),
             attrs.get("tailkind", None),
             frozenset(attrs.get("fmf", [])),
         ),
@@ -1924,7 +1779,7 @@ _constructors: list[tuple[Any, Constructor]] = [
         ),
     ),
     (
-        LangingPad,
+        LandingPad,
         lambda operands, value, unused, additional, *_: (
             value,
             additional[0],

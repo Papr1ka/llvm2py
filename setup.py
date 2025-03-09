@@ -136,12 +136,12 @@ class CMakeBuild(build_ext):
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 
-with open("./README.md", encoding="utf-8") as file:
+with open("./README.rst", encoding="utf-8") as file:
     long_description = file.read()
 
 setup(
     name="llvm2py",
-    version="0.1.0b2",
+    version="0.2.0b",
     author="Papr1ka",
     url="https://github.com/Papr1ka/llvm2py",
     author_email="kirillpavlov4214@gmail.com",

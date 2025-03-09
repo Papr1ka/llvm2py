@@ -7,32 +7,55 @@ class Instruction: ...
 
 class Value(NamedTuple):
     """
-    A base class for many IR entities
+    A base class for many IR entities.
+    This class can represent a name, a constant, or a constant expression.
+    Regardless of the meaning, the value is stored in the val field.
 
-    A class can represent a name, a constant, or a constant expression
+    +-------------------------------------------+-----------------+
+    | val kind                                  | val type        |
+    +===========================================+=================+
+    | Name                                      | str             |
+    +-------------------------------------------+-----------------+
+    | poison                                    | str("poison")   |
+    +-------------------------------------------+-----------------+
+    | undef                                     | str("undef)     |
+    +-------------------------------------------+-----------------+
+    | Integer constant                          | int             |
+    +-------------------------------------------+-----------------+
+    | Float constant                            | float           |
+    +-------------------------------------------+-----------------+
+    | Array | Vector of integer constants       | list[int]       |
+    +-------------------------------------------+-----------------+
+    | Array | Vector of float constants         | list[float]     |
+    +-------------------------------------------+-----------------+
+    | Null pointer constant                     | None            |
+    +-------------------------------------------+-----------------+
+    | Array of int8                             | bytes           |
+    +-------------------------------------------+-----------------+
+    | Block address (Function name, Block name) | tuple[str, str] |
+    +-------------------------------------------+-----------------+
+    | Constant expression                       | Instruction     |
+    +-------------------------------------------+-----------------+
 
-    Regardless of the meaning, the value is stored in the val field
-
-    Constant aggregate zero (zeroinitializer) represented by int(0)
-
-    Int8 array represented by bytes object
+    :param val: Value.
+    :type val: str | int | float | list[int] | list[float] | list["Value"] | None | bytes | tuple[str, str] | Instruction)
+    :param ty: Value type.
+    :type ty: Type
     """
 
-    # fmt: off
     val: (
-        str                         # Name | "poison" | "undef" | ...
-        | int                       # Constant int
-        | float                     # Constant float
-        | list[int]                 # Constant Data {Array | Vector} of integers
-        | list[float]               # Constant Data {Array | Vector} of FP values
-        | list["Value"]             # Constant Aggregates (Array | Vector | Struct) of Values 
-        | None                      # Constant Null Pointer
-        | bytes                     # Array of int8 (CString for example)
-        | tuple[str, str]           # Block address (Function name, Block name)
-        | Instruction               # Constant expression
+        str
+        | int
+        | float
+        | list[int]
+        | list[float]
+        | list["Value"]
+        | None
+        | bytes
+        | tuple[str, str]
+        | Instruction
     )
-    # fmt: on
-    ty: Type  # Value type
+    ty: Type
 
     def __str__(self):
         return f"{self.ty} {self.val}"

@@ -6,9 +6,9 @@
 
    installation
    ir_structure
+   about_attributes
    example
    llvm2py.ir
-
 
 
 

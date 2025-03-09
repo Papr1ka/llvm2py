@@ -6,5 +6,6 @@ from .value import Value
 from .instruction import *
 from .instruction import _create_instruction
 from .global_variable import GlobalVariable
-from .global_object import GlobalObject
+from .global_object import GlobalObject, ThreadLocal
 from . import support
+from . import enum
