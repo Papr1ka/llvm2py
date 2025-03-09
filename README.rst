@@ -5,7 +5,7 @@ llvm2py
 
 `Documentation is available here <https://papr1ka.github.io/llvm2py/>`_
 
-:doc:`CHANGELOG`.
+:ref:`changelog`.
 
 A fairly large proportion of programs are written in C/C++.
 
