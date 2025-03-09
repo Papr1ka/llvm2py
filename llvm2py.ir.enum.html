@@ -1,0 +1,897 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="llvm2py.ir.function module" href="llvm2py.ir.function.html" /><link rel="prev" title="llvm2py.ir.block module" href="llvm2py.ir.block.html" />
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>llvm2py.ir.enum module - llvm2py 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">llvm2py 0.2.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">llvm2py 0.2.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ir_structure.html">IR Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about_attributes.html">About attributes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Straightforward simple interpreter</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="llvm2py.ir.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.block.html">llvm2py.ir.block module</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">llvm2py.ir.enum module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.function.html">llvm2py.ir.function module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.global_object.html">llvm2py.ir.global_object module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.global_variable.html">llvm2py.ir.global_variable module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.instruction.html">llvm2py.ir.instruction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.module.html">llvm2py.ir.module module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.support.html">llvm2py.ir.support module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.type.html">llvm2py.ir.type module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llvm2py.ir.value.html">llvm2py.ir.value module</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/llvm2py.ir.enum.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-llvm2py.ir.enum">
+<span id="llvm2py-ir-enum-module"></span><h1>llvm2py.ir.enum module<a class="headerlink" href="#module-llvm2py.ir.enum" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CallingConv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llvm2py.ir.enum.CallingConv" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p><a class="reference external" href="https://llvm.org/docs/LangRef.html#calling-conventions">Calling conventions</a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0">
+<span class="sig-name descname"><span class="pre">AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">102</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2">
+<span class="sig-name descname"><span class="pre">AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">103</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AArch64_SVE_VectorCall">
+<span class="sig-name descname"><span class="pre">AArch64_SVE_VectorCall</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">98</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AArch64_SVE_VectorCall" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AArch64_VectorCall">
+<span class="sig-name descname"><span class="pre">AArch64_VectorCall</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">97</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AArch64_VectorCall" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_CS">
+<span class="sig-name descname"><span class="pre">AMDGPU_CS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">90</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_CS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_ES">
+<span class="sig-name descname"><span class="pre">AMDGPU_ES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">96</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_ES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_GS">
+<span class="sig-name descname"><span class="pre">AMDGPU_GS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">88</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_GS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_Gfx">
+<span class="sig-name descname"><span class="pre">AMDGPU_Gfx</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_Gfx" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_HS">
+<span class="sig-name descname"><span class="pre">AMDGPU_HS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">93</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_HS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_KERNEL">
+<span class="sig-name descname"><span class="pre">AMDGPU_KERNEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">91</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_KERNEL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_LS">
+<span class="sig-name descname"><span class="pre">AMDGPU_LS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">95</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_LS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_PS">
+<span class="sig-name descname"><span class="pre">AMDGPU_PS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">89</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_PS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AMDGPU_VS">
+<span class="sig-name descname"><span class="pre">AMDGPU_VS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">87</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AMDGPU_VS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.ARM_AAPCS">
+<span class="sig-name descname"><span class="pre">ARM_AAPCS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">67</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.ARM_AAPCS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.ARM_AAPCS_VFP">
+<span class="sig-name descname"><span class="pre">ARM_AAPCS_VFP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">68</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.ARM_AAPCS_VFP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.ARM_APCS">
+<span class="sig-name descname"><span class="pre">ARM_APCS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">66</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.ARM_APCS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AVR_BUILTIN">
+<span class="sig-name descname"><span class="pre">AVR_BUILTIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">86</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AVR_BUILTIN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AVR_INTR">
+<span class="sig-name descname"><span class="pre">AVR_INTR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">84</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AVR_INTR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AVR_SIGNAL">
+<span class="sig-name descname"><span class="pre">AVR_SIGNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">85</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AVR_SIGNAL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.AnyReg">
+<span class="sig-name descname"><span class="pre">AnyReg</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.AnyReg" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.C">
+<span class="sig-name descname"><span class="pre">C</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.C" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.CFGuard_Check">
+<span class="sig-name descname"><span class="pre">CFGuard_Check</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">19</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.CFGuard_Check" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.CXX_FAST_TLS">
+<span class="sig-name descname"><span class="pre">CXX_FAST_TLS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">17</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.CXX_FAST_TLS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.Cold">
+<span class="sig-name descname"><span class="pre">Cold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.Cold" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.Fast">
+<span class="sig-name descname"><span class="pre">Fast</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.Fast" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.FirstTargetCC">
+<span class="sig-name descname"><span class="pre">FirstTargetCC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.FirstTargetCC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.GHC">
+<span class="sig-name descname"><span class="pre">GHC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.GHC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.HHVM">
+<span class="sig-name descname"><span class="pre">HHVM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">81</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.HHVM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.HHVM_C">
+<span class="sig-name descname"><span class="pre">HHVM_C</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">82</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.HHVM_C" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.HiPE">
+<span class="sig-name descname"><span class="pre">HiPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.HiPE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.Intel_OCL_BI">
+<span class="sig-name descname"><span class="pre">Intel_OCL_BI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">77</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.Intel_OCL_BI" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.M68k_INTR">
+<span class="sig-name descname"><span class="pre">M68k_INTR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">101</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.M68k_INTR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.MSP430_BUILTIN">
+<span class="sig-name descname"><span class="pre">MSP430_BUILTIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">94</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.MSP430_BUILTIN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.MSP430_INTR">
+<span class="sig-name descname"><span class="pre">MSP430_INTR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">69</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.MSP430_INTR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.MaxID">
+<span class="sig-name descname"><span class="pre">MaxID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1023</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.MaxID" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.PTX_Device">
+<span class="sig-name descname"><span class="pre">PTX_Device</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">72</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.PTX_Device" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.PTX_Kernel">
+<span class="sig-name descname"><span class="pre">PTX_Kernel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">71</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.PTX_Kernel" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.PreserveAll">
+<span class="sig-name descname"><span class="pre">PreserveAll</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.PreserveAll" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.PreserveMost">
+<span class="sig-name descname"><span class="pre">PreserveMost</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.PreserveMost" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.SPIR_FUNC">
+<span class="sig-name descname"><span class="pre">SPIR_FUNC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">75</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.SPIR_FUNC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.SPIR_KERNEL">
+<span class="sig-name descname"><span class="pre">SPIR_KERNEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">76</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.SPIR_KERNEL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.Swift">
+<span class="sig-name descname"><span class="pre">Swift</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.Swift" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.SwiftTail">
+<span class="sig-name descname"><span class="pre">SwiftTail</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.SwiftTail" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.Tail">
+<span class="sig-name descname"><span class="pre">Tail</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">18</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.Tail" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.WASM_EmscriptenInvoke">
+<span class="sig-name descname"><span class="pre">WASM_EmscriptenInvoke</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">99</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.WASM_EmscriptenInvoke" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.WebKit_JS">
+<span class="sig-name descname"><span class="pre">WebKit_JS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.WebKit_JS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.Win64">
+<span class="sig-name descname"><span class="pre">Win64</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">79</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.Win64" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.X86_64_SysV">
+<span class="sig-name descname"><span class="pre">X86_64_SysV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">78</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.X86_64_SysV" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.X86_FastCall">
+<span class="sig-name descname"><span class="pre">X86_FastCall</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">65</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.X86_FastCall" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.X86_INTR">
+<span class="sig-name descname"><span class="pre">X86_INTR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">83</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.X86_INTR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.X86_RegCall">
+<span class="sig-name descname"><span class="pre">X86_RegCall</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">92</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.X86_RegCall" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.X86_StdCall">
+<span class="sig-name descname"><span class="pre">X86_StdCall</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.X86_StdCall" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.X86_ThisCall">
+<span class="sig-name descname"><span class="pre">X86_ThisCall</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">70</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.X86_ThisCall" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.CallingConv.X86_VectorCall">
+<span class="sig-name descname"><span class="pre">X86_VectorCall</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">80</span></em><a class="headerlink" href="#llvm2py.ir.enum.CallingConv.X86_VectorCall" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinkageType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llvm2py.ir.enum.LinkageType" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p><a class="reference external" href="https://llvm.org/docs/LangRef.html#linkage-types">Linkage types</a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.AppendingLinkage">
+<span class="sig-name descname"><span class="pre">AppendingLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.AppendingLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.AvailableExternallyLinkage">
+<span class="sig-name descname"><span class="pre">AvailableExternallyLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.AvailableExternallyLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.CommonLinkage">
+<span class="sig-name descname"><span class="pre">CommonLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.CommonLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.ExternalLinkage">
+<span class="sig-name descname"><span class="pre">ExternalLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.ExternalLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.ExternalWeakLinkage">
+<span class="sig-name descname"><span class="pre">ExternalWeakLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.ExternalWeakLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.InternalLinkage">
+<span class="sig-name descname"><span class="pre">InternalLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.InternalLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.LinkOnceAnyLinkage">
+<span class="sig-name descname"><span class="pre">LinkOnceAnyLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.LinkOnceAnyLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.LinkOnceODRLinkage">
+<span class="sig-name descname"><span class="pre">LinkOnceODRLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.LinkOnceODRLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.PrivateLinkage">
+<span class="sig-name descname"><span class="pre">PrivateLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.PrivateLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.WeakAnyLinkage">
+<span class="sig-name descname"><span class="pre">WeakAnyLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.WeakAnyLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.LinkageType.WeakODRLinkage">
+<span class="sig-name descname"><span class="pre">WeakODRLinkage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#llvm2py.ir.enum.LinkageType.WeakODRLinkage" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.Ordering">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ordering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llvm2py.ir.enum.Ordering" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p><a class="reference external" href="https://llvm.org/docs/LangRef.html#atomic-memory-ordering-constraints">Atomic memory ordering constraints</a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.Ordering.Acquire">
+<span class="sig-name descname"><span class="pre">Acquire</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#llvm2py.ir.enum.Ordering.Acquire" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.Ordering.AcquireRelease">
+<span class="sig-name descname"><span class="pre">AcquireRelease</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#llvm2py.ir.enum.Ordering.AcquireRelease" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.Ordering.Monotonic">
+<span class="sig-name descname"><span class="pre">Monotonic</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#llvm2py.ir.enum.Ordering.Monotonic" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.Ordering.NotAtomic">
+<span class="sig-name descname"><span class="pre">NotAtomic</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#llvm2py.ir.enum.Ordering.NotAtomic" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.Ordering.Release">
+<span class="sig-name descname"><span class="pre">Release</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#llvm2py.ir.enum.Ordering.Release" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.Ordering.SequentiallyConsistent">
+<span class="sig-name descname"><span class="pre">SequentiallyConsistent</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#llvm2py.ir.enum.Ordering.SequentiallyConsistent" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.Ordering.Unordered">
+<span class="sig-name descname"><span class="pre">Unordered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#llvm2py.ir.enum.Ordering.Unordered" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.ThreadLocal">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ThreadLocal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llvm2py.ir.enum.ThreadLocal" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p><a class="reference external" href="https://llvm.org/docs/LangRef.html#thread-local-storage-models">Thread local storage models</a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.ThreadLocal.GeneralDynamicTLSModel">
+<span class="sig-name descname"><span class="pre">GeneralDynamicTLSModel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#llvm2py.ir.enum.ThreadLocal.GeneralDynamicTLSModel" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.ThreadLocal.InitialExecTLSModel">
+<span class="sig-name descname"><span class="pre">InitialExecTLSModel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#llvm2py.ir.enum.ThreadLocal.InitialExecTLSModel" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.ThreadLocal.LocalDynamicTLSModel">
+<span class="sig-name descname"><span class="pre">LocalDynamicTLSModel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#llvm2py.ir.enum.ThreadLocal.LocalDynamicTLSModel" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.ThreadLocal.LocalExecTLSModel">
+<span class="sig-name descname"><span class="pre">LocalExecTLSModel</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#llvm2py.ir.enum.ThreadLocal.LocalExecTLSModel" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.ThreadLocal.NotThreadLocal">
+<span class="sig-name descname"><span class="pre">NotThreadLocal</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#llvm2py.ir.enum.ThreadLocal.NotThreadLocal" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.UnnamedAddr">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UnnamedAddr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llvm2py.ir.enum.UnnamedAddr" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Unnamed addresses</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.UnnamedAddr.Default">
+<span class="sig-name descname"><span class="pre">Default</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#llvm2py.ir.enum.UnnamedAddr.Default" title="Link to this definition">¶</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.UnnamedAddr.Global">
+<span class="sig-name descname"><span class="pre">Global</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#llvm2py.ir.enum.UnnamedAddr.Global" title="Link to this definition">¶</a></dt>
+<dd><p>unnamed_addr</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.UnnamedAddr.Local">
+<span class="sig-name descname"><span class="pre">Local</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#llvm2py.ir.enum.UnnamedAddr.Local" title="Link to this definition">¶</a></dt>
+<dd><p>local_unnamed_addr</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.VisibilityTypes">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VisibilityTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llvm2py.ir.enum.VisibilityTypes" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p><a class="reference external" href="https://llvm.org/docs/LangRef.html#visibility-styles">Visibility types</a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.VisibilityTypes.DefaultVisibility">
+<span class="sig-name descname"><span class="pre">DefaultVisibility</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#llvm2py.ir.enum.VisibilityTypes.DefaultVisibility" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.VisibilityTypes.HiddenVisibility">
+<span class="sig-name descname"><span class="pre">HiddenVisibility</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#llvm2py.ir.enum.VisibilityTypes.HiddenVisibility" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llvm2py.ir.enum.VisibilityTypes.ProtectedVisibility">
+<span class="sig-name descname"><span class="pre">ProtectedVisibility</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#llvm2py.ir.enum.VisibilityTypes.ProtectedVisibility" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="llvm2py.ir.function.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">llvm2py.ir.function module</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="llvm2py.ir.block.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">llvm2py.ir.block module</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Papr1ka
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">llvm2py.ir.enum module</a><ul>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv"><code class="docutils literal notranslate"><span class="pre">CallingConv</span></code></a><ul>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0"><code class="docutils literal notranslate"><span class="pre">CallingConv.AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2"><code class="docutils literal notranslate"><span class="pre">CallingConv.AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AArch64_SVE_VectorCall"><code class="docutils literal notranslate"><span class="pre">CallingConv.AArch64_SVE_VectorCall</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AArch64_VectorCall"><code class="docutils literal notranslate"><span class="pre">CallingConv.AArch64_VectorCall</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_CS"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_CS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_ES"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_ES</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_GS"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_GS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_Gfx"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_Gfx</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_HS"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_HS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_KERNEL"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_KERNEL</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_LS"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_LS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_PS"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_PS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AMDGPU_VS"><code class="docutils literal notranslate"><span class="pre">CallingConv.AMDGPU_VS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.ARM_AAPCS"><code class="docutils literal notranslate"><span class="pre">CallingConv.ARM_AAPCS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.ARM_AAPCS_VFP"><code class="docutils literal notranslate"><span class="pre">CallingConv.ARM_AAPCS_VFP</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.ARM_APCS"><code class="docutils literal notranslate"><span class="pre">CallingConv.ARM_APCS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AVR_BUILTIN"><code class="docutils literal notranslate"><span class="pre">CallingConv.AVR_BUILTIN</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AVR_INTR"><code class="docutils literal notranslate"><span class="pre">CallingConv.AVR_INTR</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AVR_SIGNAL"><code class="docutils literal notranslate"><span class="pre">CallingConv.AVR_SIGNAL</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.AnyReg"><code class="docutils literal notranslate"><span class="pre">CallingConv.AnyReg</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.C"><code class="docutils literal notranslate"><span class="pre">CallingConv.C</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.CFGuard_Check"><code class="docutils literal notranslate"><span class="pre">CallingConv.CFGuard_Check</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.CXX_FAST_TLS"><code class="docutils literal notranslate"><span class="pre">CallingConv.CXX_FAST_TLS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.Cold"><code class="docutils literal notranslate"><span class="pre">CallingConv.Cold</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.Fast"><code class="docutils literal notranslate"><span class="pre">CallingConv.Fast</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.FirstTargetCC"><code class="docutils literal notranslate"><span class="pre">CallingConv.FirstTargetCC</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.GHC"><code class="docutils literal notranslate"><span class="pre">CallingConv.GHC</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.HHVM"><code class="docutils literal notranslate"><span class="pre">CallingConv.HHVM</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.HHVM_C"><code class="docutils literal notranslate"><span class="pre">CallingConv.HHVM_C</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.HiPE"><code class="docutils literal notranslate"><span class="pre">CallingConv.HiPE</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.Intel_OCL_BI"><code class="docutils literal notranslate"><span class="pre">CallingConv.Intel_OCL_BI</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.M68k_INTR"><code class="docutils literal notranslate"><span class="pre">CallingConv.M68k_INTR</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.MSP430_BUILTIN"><code class="docutils literal notranslate"><span class="pre">CallingConv.MSP430_BUILTIN</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.MSP430_INTR"><code class="docutils literal notranslate"><span class="pre">CallingConv.MSP430_INTR</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.MaxID"><code class="docutils literal notranslate"><span class="pre">CallingConv.MaxID</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.PTX_Device"><code class="docutils literal notranslate"><span class="pre">CallingConv.PTX_Device</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.PTX_Kernel"><code class="docutils literal notranslate"><span class="pre">CallingConv.PTX_Kernel</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.PreserveAll"><code class="docutils literal notranslate"><span class="pre">CallingConv.PreserveAll</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.PreserveMost"><code class="docutils literal notranslate"><span class="pre">CallingConv.PreserveMost</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.SPIR_FUNC"><code class="docutils literal notranslate"><span class="pre">CallingConv.SPIR_FUNC</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.SPIR_KERNEL"><code class="docutils literal notranslate"><span class="pre">CallingConv.SPIR_KERNEL</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.Swift"><code class="docutils literal notranslate"><span class="pre">CallingConv.Swift</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.SwiftTail"><code class="docutils literal notranslate"><span class="pre">CallingConv.SwiftTail</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.Tail"><code class="docutils literal notranslate"><span class="pre">CallingConv.Tail</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.WASM_EmscriptenInvoke"><code class="docutils literal notranslate"><span class="pre">CallingConv.WASM_EmscriptenInvoke</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.WebKit_JS"><code class="docutils literal notranslate"><span class="pre">CallingConv.WebKit_JS</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.Win64"><code class="docutils literal notranslate"><span class="pre">CallingConv.Win64</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.X86_64_SysV"><code class="docutils literal notranslate"><span class="pre">CallingConv.X86_64_SysV</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.X86_FastCall"><code class="docutils literal notranslate"><span class="pre">CallingConv.X86_FastCall</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.X86_INTR"><code class="docutils literal notranslate"><span class="pre">CallingConv.X86_INTR</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.X86_RegCall"><code class="docutils literal notranslate"><span class="pre">CallingConv.X86_RegCall</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.X86_StdCall"><code class="docutils literal notranslate"><span class="pre">CallingConv.X86_StdCall</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.X86_ThisCall"><code class="docutils literal notranslate"><span class="pre">CallingConv.X86_ThisCall</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.CallingConv.X86_VectorCall"><code class="docutils literal notranslate"><span class="pre">CallingConv.X86_VectorCall</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType"><code class="docutils literal notranslate"><span class="pre">LinkageType</span></code></a><ul>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.AppendingLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.AppendingLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.AvailableExternallyLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.AvailableExternallyLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.CommonLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.CommonLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.ExternalLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.ExternalLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.ExternalWeakLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.ExternalWeakLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.InternalLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.InternalLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.LinkOnceAnyLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.LinkOnceAnyLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.LinkOnceODRLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.LinkOnceODRLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.PrivateLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.PrivateLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.WeakAnyLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.WeakAnyLinkage</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.LinkageType.WeakODRLinkage"><code class="docutils literal notranslate"><span class="pre">LinkageType.WeakODRLinkage</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.Ordering"><code class="docutils literal notranslate"><span class="pre">Ordering</span></code></a><ul>
+<li><a class="reference internal" href="#llvm2py.ir.enum.Ordering.Acquire"><code class="docutils literal notranslate"><span class="pre">Ordering.Acquire</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.Ordering.AcquireRelease"><code class="docutils literal notranslate"><span class="pre">Ordering.AcquireRelease</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.Ordering.Monotonic"><code class="docutils literal notranslate"><span class="pre">Ordering.Monotonic</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.Ordering.NotAtomic"><code class="docutils literal notranslate"><span class="pre">Ordering.NotAtomic</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.Ordering.Release"><code class="docutils literal notranslate"><span class="pre">Ordering.Release</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.Ordering.SequentiallyConsistent"><code class="docutils literal notranslate"><span class="pre">Ordering.SequentiallyConsistent</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.Ordering.Unordered"><code class="docutils literal notranslate"><span class="pre">Ordering.Unordered</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.ThreadLocal"><code class="docutils literal notranslate"><span class="pre">ThreadLocal</span></code></a><ul>
+<li><a class="reference internal" href="#llvm2py.ir.enum.ThreadLocal.GeneralDynamicTLSModel"><code class="docutils literal notranslate"><span class="pre">ThreadLocal.GeneralDynamicTLSModel</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.ThreadLocal.InitialExecTLSModel"><code class="docutils literal notranslate"><span class="pre">ThreadLocal.InitialExecTLSModel</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.ThreadLocal.LocalDynamicTLSModel"><code class="docutils literal notranslate"><span class="pre">ThreadLocal.LocalDynamicTLSModel</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.ThreadLocal.LocalExecTLSModel"><code class="docutils literal notranslate"><span class="pre">ThreadLocal.LocalExecTLSModel</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.ThreadLocal.NotThreadLocal"><code class="docutils literal notranslate"><span class="pre">ThreadLocal.NotThreadLocal</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.UnnamedAddr"><code class="docutils literal notranslate"><span class="pre">UnnamedAddr</span></code></a><ul>
+<li><a class="reference internal" href="#llvm2py.ir.enum.UnnamedAddr.Default"><code class="docutils literal notranslate"><span class="pre">UnnamedAddr.Default</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.UnnamedAddr.Global"><code class="docutils literal notranslate"><span class="pre">UnnamedAddr.Global</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.UnnamedAddr.Local"><code class="docutils literal notranslate"><span class="pre">UnnamedAddr.Local</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.VisibilityTypes"><code class="docutils literal notranslate"><span class="pre">VisibilityTypes</span></code></a><ul>
+<li><a class="reference internal" href="#llvm2py.ir.enum.VisibilityTypes.DefaultVisibility"><code class="docutils literal notranslate"><span class="pre">VisibilityTypes.DefaultVisibility</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.VisibilityTypes.HiddenVisibility"><code class="docutils literal notranslate"><span class="pre">VisibilityTypes.HiddenVisibility</span></code></a></li>
+<li><a class="reference internal" href="#llvm2py.ir.enum.VisibilityTypes.ProtectedVisibility"><code class="docutils literal notranslate"><span class="pre">VisibilityTypes.ProtectedVisibility</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    </body>
+</html>
