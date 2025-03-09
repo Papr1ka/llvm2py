@@ -1,4 +1,4 @@
-Straightforward simple interpretor
+Straightforward simple interpreter
 ##################################
 
 Let's create a simple interpreter of the llvm ir subset to compute the value of the factorial.
