@@ -3,6 +3,10 @@
 llvm2py
 #######
 
+`Documentation is available here <https://papr1ka.github.io/llvm2py/>`_
+
+:doc:`CHANGELOG`.
+
 A fairly large proportion of programs are written in C/C++.
 
 Let's imagine that you need to analyze programs in a given language, to search for vulnerabilities, to detect patterns or for optimization purposes.
