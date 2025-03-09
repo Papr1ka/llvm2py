@@ -19,7 +19,6 @@ namespace llvm2py {
         py::object FunctionTypePyClass;
         py::object IntegerTypePyClass;
         py::object FPTypePyClass;
-        py::object X86_mmxTypePyClass;
         py::object X86_amxTypePyClass;
         py::object PtrTypePyClass;
         py::object TargetExtensionTypePyClass;
@@ -128,8 +127,6 @@ namespace llvm2py {
                 return PT.LabelTypePyClass();
             case Type::TypeID::MetadataTyID:
                 return PT.MetadataTypePyClass();
-            case Type::TypeID::X86_MMXTyID:
-                return PT.X86_mmxTypePyClass();
             case Type::TypeID::X86_AMXTyID:
                 return PT.X86_amxTypePyClass();
             case Type::TypeID::TokenTyID:
@@ -243,6 +240,10 @@ namespace llvm2py {
                     py::str(targetExtType->getName().str()),
                     py::list(py::cast(params))
                 );
+            }
+            default:
+            {
+                return py::none();
             }
         }
     }
@@ -849,7 +850,6 @@ namespace llvm2py {
                 IRPyModule.attr("FunctionType"),
                 IRPyModule.attr("IntegerType"),
                 IRPyModule.attr("FPType"),
-                IRPyModule.attr("X86_mmxType"),
                 IRPyModule.attr("X86_amxType"),
                 IRPyModule.attr("PtrType"),
                 IRPyModule.attr("TargetExtensionType"),

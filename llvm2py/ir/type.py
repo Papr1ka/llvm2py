@@ -51,11 +51,6 @@ class FPType(NamedTuple):
         return self.kind
 
 
-class X86_mmxType(NamedTuple):
-    def __str__(self):
-        return "x86_mmx"
-
-
 class X86_amxType(NamedTuple):
     def __str__(self):
         return "x86_amx"
